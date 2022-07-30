@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using backend.Services;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace backend.Models
@@ -16,5 +17,11 @@ namespace backend.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         [BsonElement("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
+
+        public async Task CreateBlogAsync(BlogService blogService, BlogDocument blogDocument)
+        {
+            await blogService.CreateAsyncBlog(blogDocument);
+            return;
+        }
     }
 }

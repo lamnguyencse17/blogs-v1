@@ -11,10 +11,12 @@ namespace backend.Controllers
     [ApiController]
     public class BlogController : ControllerBase
     {
+        private readonly BlogService _blogService;
         private readonly MongoDBService _mongoDBService;
         public BlogController(MongoDBService mongoDBService)
         {
             _mongoDBService = mongoDBService;
+            _blogService = new BlogService(mongoDBService.Database);
         }
 
         // GET: api/<BlogController>
@@ -35,7 +37,7 @@ namespace backend.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] BlogDocument blog)
         {
-            await _mongoDBService.CreateAsync(blog);
+            await blog.CreateBlogAsync(_blogService, blog);
             return CreatedAtAction(nameof(Get), new { id = blog.Id }, blog);
         }
 
