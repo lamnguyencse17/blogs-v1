@@ -18,10 +18,30 @@ namespace backend.Models
         [BsonElement("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
+        public BlogDocument(string id)
+        {
+            Id = id;
+        }
+
         public async Task CreateBlogAsync(BlogService blogService, BlogDocument blogDocument)
         {
             await blogService.CreateAsyncBlog(blogDocument);
             return;
+        }
+
+        public async Task<BlogDocument> GetBlogAsync(BlogService blogService)
+        {
+            BlogDocument? blogDocument = await blogService.GetAsyncSingleBlog(Id!);
+            if (blogDocument == null)
+            {
+                return this;
+            }
+            Title = blogDocument.Title;
+            SubTitle = blogDocument.SubTitle;
+            Content = blogDocument.Content;
+            CreatedAt = blogDocument.CreatedAt;
+            UpdatedAt = blogDocument.UpdatedAt;
+            return this;
         }
     }
 }

@@ -27,13 +27,14 @@ namespace backend.Controllers
         }
 
         // GET api/<BlogController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("{blogId}")]
+        public async Task<BlogDocument?> Get(string blogId)
         {
-            return "value";
+            BlogDocument blog = new(blogId);
+            
+            return await blog.GetBlogAsync(_blogService);
         }
 
-        // POST api/<BlogController>
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] BlogDocument blog)
         {
