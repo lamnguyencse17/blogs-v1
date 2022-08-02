@@ -1,0 +1,36 @@
+.ProseMirror {
+	border: 2px solid grey;
+	border-radius: 4px;
+	padding: 0.5rem;
+}
+
+.ProseMirror ul{
+    margin-left: 1rem;
+    list-style-type: disc;
+    list-style-position: outside;
+    list-style-image: none;
+}
+
+.ProseMirror ul ul{
+    list-style-type: circle;
+}
+
+.ProseMirror ul ul ul{
+    list-style-type: square;
+}
+
+
+.ProseMirror ol{
+    margin-left: 1rem;
+    list-style: decimal;
+    list-style-position: outside;
+    list-style-image: none;
+}
+
+.ProseMirror ol ol{
+    list-style: decimal-leading-zero;
+}
+
+.ProseMirror ol ol ol{
+    list-style: lower-alpha;
+}

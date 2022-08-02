@@ -1,0 +1,20 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextIndex"]
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model blogs {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  title     String
+  subTitle  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@fulltext([title(sort: Desc), content])
+}

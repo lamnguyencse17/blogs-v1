@@ -5,18 +5,17 @@
 <script lang="ts">
 	import Card from '$lib/index/Card.svelte';
 	import Search from '$lib/index/Search.svelte';
+	import type { IndexBlogs } from '.';
+	export let blogs: IndexBlogs;
 </script>
 
 <svelte:head>
 	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
+	<meta name="description" content="Dev's Tangent home page" />
 </svelte:head>
-
 <section>
 	<Search />
-	<Card
-		id={12}
-		title={'Noteworthy technology acquisitions 2021'}
-		subTitle={'Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.'}
-	/>
+	{#each blogs as { id, title, subTitle }}
+		<Card {id} {title} {subTitle} />
+	{/each}
 </section>
