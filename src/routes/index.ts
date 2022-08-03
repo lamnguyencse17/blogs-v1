@@ -8,7 +8,13 @@ const getIndexBlogs = async () => {
 			id: true,
 			title: true,
 			subTitle: true,
-			updatedAt: true
+			updatedAt: true,
+			creator: {
+				select: {
+					id: true,
+					name: true
+				}
+			}
 		}
 	});
 	return blogs;

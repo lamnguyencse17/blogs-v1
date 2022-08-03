@@ -3,8 +3,9 @@
 </script>
 
 <script lang="ts">
-	import Card from '$lib/index/Card.svelte';
-	import Search from '$lib/index/Search.svelte';
+	import Card from '$lib/components/index/Card.svelte';
+	import Search from '$lib/components/index/Search.svelte';
+	import { userStore } from '../store';
 	import type { IndexBlogs } from '.';
 	export let blogs: IndexBlogs;
 </script>
@@ -15,7 +16,7 @@
 </svelte:head>
 <section>
 	<Search />
-	{#each blogs as { id, title, subTitle }}
-		<Card {id} {title} {subTitle} />
+	{#each blogs as { id, title, subTitle, creator }}
+		<Card {id} {title} {subTitle} {creator} />
 	{/each}
 </section>

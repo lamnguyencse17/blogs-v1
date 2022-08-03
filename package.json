@@ -39,6 +39,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@felte/validator-zod": "^1.0.10",
 		"@fontsource/fira-mono": "^4.5.0",
 		"@prisma/client": "^4.1.1",
 		"@sveltestack/svelte-query": "^1.6.0",
@@ -52,7 +53,13 @@
 		"@tiptap/extension-ordered-list": "^2.0.0-beta.30",
 		"@tiptap/html": "^2.0.0-beta.181",
 		"@tiptap/starter-kit": "^2.0.0-beta.191",
+		"@types/bcryptjs": "^2.4.2",
+		"@types/jsonwebtoken": "^8.5.8",
+		"bcryptjs": "^2.4.3",
 		"broadcast-channel": "^4.14.0",
-		"cookie": "^0.4.1"
+		"cookie": "^0.4.1",
+		"felte": "^1.2.2",
+		"jsonwebtoken": "^8.5.1",
+		"zod": "^3.17.10"
 	}
 }

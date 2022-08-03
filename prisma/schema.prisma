@@ -13,8 +13,20 @@ model blogs {
   content   String
   title     String
   subTitle  String
+  creatorId String   @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  creator   users    @relation(fields: [creatorId], references: [id])
 
   @@fulltext([title(sort: Desc), content])
+}
+
+model users {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  blogs     blogs[]
 }
