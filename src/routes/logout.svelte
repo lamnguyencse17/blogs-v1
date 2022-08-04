@@ -1,15 +1,12 @@
 <script lang="ts">
 	import { Spinner } from 'flowbite-svelte';
 	import { onDestroy, onMount } from 'svelte';
-	import { userStore } from '../store';
-	import { getStores } from '$app/stores';
+	import { defaultUserStore, userStore } from '../store';
 	import { goto, prefetch } from '$app/navigation';
 
 	let timedRedirect: NodeJS.Timeout | undefined;
-	const { session } = getStores();
 
-	userStore.set({ id: '', email: '', name: '' });
-	session.set({ id: '', email: '', name: '' });
+	userStore.set(defaultUserStore);
 	onMount(() => {
 		prefetch('/');
 		timedRedirect = setTimeout(() => {

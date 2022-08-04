@@ -1,7 +1,5 @@
-import { writable, derived } from 'svelte/store';
+import { writable } from 'svelte/store';
 
-export const userStore = writable({
-	id: '',
-	name: '',
-	email: ''
-});
+export const defaultUserStore = { id: '', email: '', name: '' };
+
+export const userStore = writable(defaultUserStore);

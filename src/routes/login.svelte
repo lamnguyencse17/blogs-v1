@@ -1,9 +1,12 @@
 <script context="module" lang="ts">
 	import type { CustomLoadEvent } from '$lib/types/auth/load';
 	import type { Load } from '@sveltejs/kit';
+	import { get } from 'svelte/store';
+	import { userStore } from '../store';
 
 	export const load: Load = ({ session }: CustomLoadEvent) => {
-		if (session.user && session.user.id !== '') {
+		const user = get(userStore);
+		if (user.id !== '') {
 			return {
 				status: 302,
 				redirect: '/'
@@ -18,8 +21,7 @@
 	import { validator } from '@felte/validator-zod';
 	import { loginSchema, type LoginSchemaType } from '../lib/types/auth/login';
 	import { goto, prefetch } from '$app/navigation';
-	import { userStore } from '../store';
-	import { getStores } from '$app/stores';
+
 	const { form } = createForm({
 		onSubmit: async (values: LoginSchemaType) => {
 			prefetch('/');
@@ -37,8 +39,6 @@
 			}
 			const user = await response.json();
 			userStore.set(user);
-			const { session } = getStores();
-			session.set(user);
 			goto('/');
 		},
 		extend: validator({ schema: loginSchema })

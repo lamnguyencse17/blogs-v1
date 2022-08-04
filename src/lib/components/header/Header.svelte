@@ -14,6 +14,9 @@
 	import { userStore } from '../../../store';
 
 	$: isLoggedIn = $userStore.id !== '';
+	userStore.subscribe((newUser) => {
+		isLoggedIn = newUser.id !== '';
+	});
 </script>
 
 <header>
