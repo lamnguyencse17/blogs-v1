@@ -1,10 +1,17 @@
-import type { Handle } from '@sveltejs/kit';
+import type { HiddenUserData } from '$lib/types/auth/login';
+import type { GetSession, Handle, RequestEvent } from '@sveltejs/kit';
 import * as cookie from 'cookie';
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '$lib/config/backend';
+
+const verifyToken = (token: string) => {
+	const payload = jwt.verify(token, JWT_SECRET);
+	return payload as HiddenUserData;
+};
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const cookies = cookie.parse(event.request.headers.get('cookie') || '');
 	event.locals.userid = cookies['userid'] || crypto.randomUUID();
-
 	const response = await resolve(event);
 
 	if (!cookies['userid']) {
@@ -20,4 +27,21 @@ export const handle: Handle = async ({ event, resolve }) => {
 	}
 
 	return response;
+};
+
+export const getSession: GetSession = (event: RequestEvent) => {
+	const cookies = cookie.parse(event.request.headers.get('cookie') || '');
+	if (!cookies['Authorization']) {
+		return {
+			user: {
+				email: '',
+				id: '',
+				name: ''
+			}
+		};
+	}
+	const { email, id, name } = verifyToken(cookies['Authorization']);
+	return {
+		user: { email, id, name }
+	};
 };

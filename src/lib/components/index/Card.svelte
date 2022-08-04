@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Card } from 'flowbite-svelte';
-
 	export let id = '';
 	export let title = '';
 	export let subTitle = '';
@@ -16,7 +15,7 @@
 	</p>
 	<a
 		href={`/creators/${creator.id}`}
-		class="mb-3 font-2xl font-normal text-blue-600 dark:text-gray-400 leading-tight"
+		class="mb-3 font-2xl font-normal text-blue-700 dark:text-gray-400 leading-tight"
 	>
 		{creator.name}
 	</a>

@@ -1,3 +1,17 @@
+<script context="module" lang="ts">
+	import type { CustomLoadEvent } from '$lib/types/auth/load';
+	import type { Load } from '@sveltejs/kit';
+
+	export const load: Load = ({ session }: CustomLoadEvent) => {
+		if (session.user && session.user.id !== '') {
+			return {
+				status: 302,
+				redirect: '/'
+			};
+		}
+	};
+</script>
+
 <script lang="ts">
 	import { Input, Label, Button } from 'flowbite-svelte';
 	import { createForm } from 'felte';
@@ -5,8 +19,9 @@
 	import { loginSchema, type LoginSchemaType } from '../lib/types/auth/login';
 	import { goto, prefetch } from '$app/navigation';
 	import { userStore } from '../store';
+	import { getStores } from '$app/stores';
 	const { form } = createForm({
-		onSubmit: async (values: LoginSchemaType, context) => {
+		onSubmit: async (values: LoginSchemaType) => {
 			prefetch('/');
 			const response = await fetch('/login', {
 				method: 'POST',
@@ -20,7 +35,10 @@
 				console.log((await response.json()).message);
 				return;
 			}
-			userStore.set(await response.json());
+			const user = await response.json();
+			userStore.set(user);
+			const { session } = getStores();
+			session.set(user);
 			goto('/');
 		},
 		extend: validator({ schema: loginSchema })

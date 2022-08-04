@@ -7,4 +7,4 @@ export const loginSchema = z.object({
 });
 export type LoginSchemaType = z.infer<typeof loginSchema>;
 
-export type LoginResponse = typeof hideUserData;
+export type HiddenUserData = ReturnType<typeof hideUserData>;

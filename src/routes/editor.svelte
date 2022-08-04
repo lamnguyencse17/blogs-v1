@@ -1,3 +1,16 @@
+<script context="module" lang="ts">
+	import type { Load } from '@sveltejs/kit';
+	import type { CustomLoadEvent } from '$lib/types/auth/load';
+	export const load: Load = ({ session }: CustomLoadEvent) => {
+		if (session.user && session.user.id === '') {
+			return {
+				status: 302,
+				redirect: '/login'
+			};
+		}
+	};
+</script>
+
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { Editor } from '@tiptap/core';
