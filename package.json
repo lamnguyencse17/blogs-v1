@@ -56,11 +56,13 @@
 		"@tiptap/starter-kit": "^2.0.0-beta.191",
 		"@types/bcryptjs": "^2.4.2",
 		"@types/jsonwebtoken": "^8.5.8",
+		"@types/lodash-es": "^4.17.6",
 		"bcryptjs": "^2.4.3",
 		"broadcast-channel": "^4.14.0",
 		"cookie": "^0.4.1",
 		"felte": "^1.2.2",
 		"jsonwebtoken": "^8.5.1",
+		"lodash-es": "^4.17.21",
 		"zod": "^3.17.10"
 	}
 }

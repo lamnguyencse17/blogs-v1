@@ -23,10 +23,45 @@
 	import BulletList from '@tiptap/extension-bullet-list';
 	import ListItem from '@tiptap/extension-list-item';
 	import '$lib/styles/editor.css';
+	import debounce from 'lodash-es/debounce';
+	import { Button } from 'flowbite-svelte';
+	import { userStore } from '../store';
+	import { goto } from '$app/navigation';
 
 	let element: Element | undefined;
 	let editor: Editor | undefined;
 	let content: ReturnType<typeof Editor.prototype.getJSON> | undefined;
+
+	const storeContent = debounce((contentObj: ReturnType<typeof Editor.prototype.getJSON>) => {
+		content = contentObj;
+		localStorage.setItem('devrant-draft', JSON.stringify(contentObj));
+	}, 1000);
+
+	const handleSubmitBlog = async () => {
+		if (!content) {
+			return;
+		}
+		const response = await fetch('/editor', {
+			method: 'POST',
+			body: JSON.stringify({
+				content: JSON.stringify(content),
+				title: 'Test this title',
+				subTitle: 'Test this subtitle',
+				creatorId: $userStore.id
+			}),
+			headers: {
+				'Content-Type': 'application/json',
+				accept: 'application/json'
+			}
+		});
+		if (!response.ok) {
+			console.log((await response.json()).message);
+			return;
+		}
+		const blog = await response.json();
+		localStorage.removeItem('devrant-draft');
+		goto(`/blogs/${blog.id}`);
+	};
 
 	onMount(() => {
 		Link.configure({
@@ -49,16 +84,23 @@
 				class: 'bullet-list'
 			}
 		});
-
+		let draftContent = localStorage.getItem('devrant-draft');
+		if (draftContent) {
+			const keepDraft = confirm('do you want to continue with the draft?');
+			if (!keepDraft) {
+				draftContent = null;
+				localStorage.removeItem('devrant-draft');
+			}
+		}
 		editor = new Editor({
 			element: element,
 			extensions: [StarterKit, Link, Image, Bold, Code, OrderedList, BulletList, ListItem],
-			content: 'Start here. The textbox is invisible!',
+			content: draftContent ? JSON.parse(draftContent) : 'Start here. The textbox is invisible!',
 			onTransaction: () => {
 				// force re-render so `editor.isActive` works as expected
 				editor = editor;
 				if (editor) {
-					content = editor.getJSON();
+					storeContent(editor.getJSON());
 				}
 			}
 		});
@@ -185,6 +227,7 @@
 {/if}
 
 <div bind:this={element} />
+<Button on:click={handleSubmitBlog}>Submit</Button>
 
 <style>
 	button.active {
