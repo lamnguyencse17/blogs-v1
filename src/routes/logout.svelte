@@ -1,7 +1,22 @@
+<script context="module" lang="ts">
+	import type { Load } from '@sveltejs/kit';
+	import { get } from 'svelte/store';
+	import { userStore, defaultUserStore } from '../store';
+
+	export const load: Load = () => {
+		const user = get(userStore);
+		if (user.id === '') {
+			return {
+				status: 302,
+				redirect: '/'
+			};
+		}
+	};
+</script>
+
 <script lang="ts">
 	import { Spinner } from 'flowbite-svelte';
 	import { onDestroy, onMount } from 'svelte';
-	import { defaultUserStore, userStore } from '../store';
 	import { goto, prefetch } from '$app/navigation';
 
 	let timedRedirect: NodeJS.Timeout | undefined;

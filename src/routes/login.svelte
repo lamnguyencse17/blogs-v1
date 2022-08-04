@@ -1,10 +1,9 @@
 <script context="module" lang="ts">
-	import type { CustomLoadEvent } from '$lib/types/auth/load';
 	import type { Load } from '@sveltejs/kit';
 	import { get } from 'svelte/store';
 	import { userStore } from '../store';
 
-	export const load: Load = ({ session }: CustomLoadEvent) => {
+	export const load: Load = () => {
 		const user = get(userStore);
 		if (user.id !== '') {
 			return {

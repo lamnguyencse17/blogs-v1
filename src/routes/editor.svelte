@@ -1,11 +1,14 @@
 <script context="module" lang="ts">
 	import type { Load } from '@sveltejs/kit';
-	import type { CustomLoadEvent } from '$lib/types/auth/load';
-	export const load: Load = ({ session }: CustomLoadEvent) => {
-		if (session.user && session.user.id === '') {
+	import { get } from 'svelte/store';
+	import { userStore } from '../store';
+
+	export const load: Load = () => {
+		const user = get(userStore);
+		if (user.id === '') {
 			return {
 				status: 302,
-				redirect: '/login'
+				redirect: '/'
 			};
 		}
 	};
@@ -25,7 +28,6 @@
 	import '$lib/styles/editor.css';
 	import debounce from 'lodash-es/debounce';
 	import { Button } from 'flowbite-svelte';
-	import { userStore } from '../store';
 	import { goto } from '$app/navigation';
 
 	let element: Element | undefined;
