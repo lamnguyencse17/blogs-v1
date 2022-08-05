@@ -1,9 +1,10 @@
 import { GetServerSideProps, NextPage } from 'next'
-import { Label, TextInput, Button } from 'flowbite-react'
 import jwt from 'jsonwebtoken'
 import { JWT_SECRET } from '../libs/configs'
 import { Claim } from '../libs/auth'
 import Head from 'next/head'
+import { useFormik } from 'formik'
+import { Button, FormControl, FormLabel, Input } from '@chakra-ui/react'
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { Authorization: token } = context.req.cookies
@@ -29,6 +30,16 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 }
 
 const Login: NextPage = () => {
+  const { handleSubmit, values, errors, handleChange, isSubmitting } =
+    useFormik({
+      initialValues: {
+        email: '',
+        password: '',
+      },
+      onSubmit: (values) => {
+        console.log(values)
+      },
+    })
   return (
     <div>
       <Head>
@@ -36,32 +47,50 @@ const Login: NextPage = () => {
         <meta name="description" content="dev's rant blogs login page" />
         <link rel="icon" href="/favicon.svg" />
       </Head>
-      <form>
+      <form onSubmit={handleSubmit}>
+        <FormControl
+          isInvalid={!!errors.email || !!errors.password}
+        ></FormControl>
         <div className="mb-6">
-          <div className="mb-2 block">
-            <Label htmlFor="email">Email</Label>
-          </div>
-          <TextInput
+          <FormLabel htmlFor="email">Email</FormLabel>
+          <Input
             id="email"
             placeholder="Email"
             type="email"
             name="email"
             required={true}
+            value={values.email}
+            onChange={handleChange}
+            isInvalid={!!errors.email}
+            errorBorderColor="red.300"
           />
         </div>
         <div className="mb-6">
-          <div className="mb-2 block">
-            <Label htmlFor="password">Password</Label>
-          </div>
-          <TextInput
+          <FormLabel htmlFor="password">Password</FormLabel>
+          <Input
             id="password"
             type="password"
             placeholder="Password"
             name="password"
             required={true}
+            value={values.password}
+            onChange={handleChange}
+            isInvalid={!!errors.password}
+            errorBorderColor="red.300"
           />
         </div>
-        <Button type="submit">Sign in</Button>
+        <div className="mx-auto w-fit">
+          <Button
+            type="submit"
+            isLoading={isSubmitting}
+            loadingText="Submitting"
+            colorScheme="twitter"
+            size="md"
+            width="10rem"
+          >
+            Sign in
+          </Button>
+        </div>
       </form>
     </div>
   )

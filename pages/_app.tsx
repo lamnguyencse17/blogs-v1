@@ -5,6 +5,8 @@ import useSWR, { Fetcher } from 'swr'
 import { UserClaim } from '../libs/auth'
 import { createContext, useEffect, useState } from 'react'
 import { userContextInitialValue } from '../libs/store'
+import { ChakraProvider } from '@chakra-ui/react'
+import theme from '../libs/theme'
 
 export const UserContext = createContext({ user: userContextInitialValue })
 
@@ -25,12 +27,14 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, [fetchedUser, error, setUser])
 
   return (
-    <UserContext.Provider value={{ user }}>
-      <div className="mx-12 h-full">
-        <Header />
-        <Component {...pageProps} />
-      </div>
-    </UserContext.Provider>
+    <ChakraProvider theme={theme}>
+      <UserContext.Provider value={{ user }}>
+        <div className="mx-12 h-full">
+          <Header />
+          <Component {...pageProps} />
+        </div>
+      </UserContext.Provider>
+    </ChakraProvider>
   )
 }
 
