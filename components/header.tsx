@@ -1,28 +1,13 @@
-import { Navbar, Spinner } from 'flowbite-react'
+import { Navbar, Spinner, Dropdown } from 'flowbite-react'
 import Image from 'next/future/image'
 import Link from 'next/link'
 import logo from '../public/favicon.svg'
-import useSWR, { Fetcher } from 'swr'
-import { useAtom } from 'jotai'
-import { userAtom } from '../store'
-import { useEffect } from 'react'
-
-const fetchUserHandler: Fetcher<string, string> = (...args) =>
-  fetch(...args).then((res) => res.json())
+import { useContext } from 'react'
+import { UserContext } from '../pages/_app'
 
 const Header = () => {
-  const [user, setUser] = useAtom(userAtom)
-  const { data, error } = useSWR('/api/me', fetchUserHandler)
-
-  useEffect(() => {
-    if (data) {
-      setUser((user) => ({ ...user, isLoading: false }))
-    }
-    if (error) {
-      console.log(error)
-    }
-  }, [data, error, setUser])
-
+  const { user } = useContext(UserContext)
+  console.log(user)
   return (
     <Navbar
       fluid={true}
@@ -43,7 +28,19 @@ const Header = () => {
       <Navbar.Collapse>
         <Link href="/">Home</Link>
         <Link href="/about">About</Link>
-        {user.isLoading && !data && <Spinner aria-label="loading" />}
+        {user.isLoading && <Spinner aria-label="loading" />}
+        {!user.isLoading && user.id === '' && <Link href="/login">Login</Link>}
+        {!user.isLoading && user.id !== '' && (
+          <Dropdown label={user.name} inline={true}>
+            <Dropdown.Item>Create a new blog</Dropdown.Item>
+            <Dropdown.Divider />
+            <Link href="/logout">
+              <a className="block cursor-pointer py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white">
+                Sign out
+              </a>
+            </Link>
+          </Dropdown>
+        )}
       </Navbar.Collapse>
     </Navbar>
   )

@@ -1,13 +1,26 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
+import jwt from 'jsonwebtoken'
+import { JWT_SECRET } from '../../libs/configs'
+import { Claim, UserClaim } from '../../libs/auth'
 
-type Data = {
-  name: string
-}
+type Data =
+  | {
+      message?: string
+    }
+  | UserClaim
 
 export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  res.status(200).json({ name: 'John Doe' })
+  const { Authorization: token } = req.cookies
+  if (!token) {
+    return res.status(401).json({})
+  }
+  if (!JWT_SECRET) {
+    console.error('JWT_SECRET is not defined')
+    return res.status(500).json({ message: 'Something went wrong' })
+  }
+  const { id, name, email } = jwt.verify(token, JWT_SECRET) as Claim
+  return res.status(200).json({ id, name, email })
 }
