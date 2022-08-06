@@ -1,33 +1,7 @@
-import { GetServerSideProps, NextPage } from 'next'
-import jwt from 'jsonwebtoken'
-import { JWT_SECRET } from '../libs/configs'
-import { Claim } from '../libs/auth'
+import { NextPage } from 'next'
 import Head from 'next/head'
 import { useFormik } from 'formik'
 import { Button, FormControl, FormLabel, Input } from '@chakra-ui/react'
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { Authorization: token } = context.req.cookies
-  if (!token || !JWT_SECRET) {
-    return {
-      props: {},
-    }
-  }
-
-  try {
-    jwt.verify(token, JWT_SECRET) as Claim
-  } catch (err) {
-    return {
-      props: {},
-    }
-  }
-  return {
-    props: {},
-    redirect: {
-      destination: '/',
-    },
-  }
-}
 
 const Login: NextPage = () => {
   const { handleSubmit, values, errors, handleChange, isSubmitting } =

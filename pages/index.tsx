@@ -2,17 +2,14 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import Card from '../components/index/card'
 import { GetBlogsForIndex, IndexBlogs } from '../libs/db/blogs'
-import dayjs from 'dayjs'
+import { Container, Flex } from '@chakra-ui/react'
 
 export async function getStaticProps() {
   const blogs = await GetBlogsForIndex()
 
   return {
     props: {
-      blogs: blogs.map((blog) => ({
-        ...blog,
-        updatedAt: dayjs(blog.updatedAt).unix(),
-      })),
+      blogs,
     },
     revalidate: 120,
   }
@@ -32,9 +29,13 @@ const Home: NextPage<HomeProps> = ({ blogs }) => {
       </Head>
 
       <main>
-        {blogs.map((blog) => (
-          <Card {...blog} key={blog.id} />
-        ))}
+        <Container maxW="container.lg">
+          <Flex direction="column" gap="10">
+            {blogs.map((blog) => (
+              <Card {...blog} key={blog.id} />
+            ))}
+          </Flex>
+        </Container>
       </main>
     </div>
   )

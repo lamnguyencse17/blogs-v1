@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client'
+import dayjs from 'dayjs'
 import { prisma } from './prisma'
 
 export const GetBlogsForIndex = async () => {
@@ -16,7 +17,10 @@ export const GetBlogsForIndex = async () => {
       },
     },
   })
-  return blogs
+  return blogs.map((blogs) => ({
+    ...blogs,
+    updatedAt: dayjs(blogs.updatedAt).unix(),
+  }))
 }
 
 export type IndexBlogs = Awaited<
@@ -55,7 +59,10 @@ export const GetBlogById = async (id: string) => {
       },
     },
   })
-  return blog
+  if (!blog) {
+    return null
+  }
+  return { ...blog, updatedAt: dayjs(blog.updatedAt).unix() }
 }
 
 export type SingleFetchedBlog = Awaited<

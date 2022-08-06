@@ -8,9 +8,19 @@ import {
 } from '../../libs/db/blogs'
 import { generateHTML } from '@tiptap/html'
 import StarterKit from '@tiptap/starter-kit'
-import Link from '@tiptap/extension-link'
+import Link from 'next/link'
+import TiptapLink from '@tiptap/extension-link'
 import Image from '@tiptap/extension-image'
 import dayjs from 'dayjs'
+import {
+  Container,
+  Flex,
+  Stack,
+  StackDivider,
+  Link as ChakraLink,
+  Text,
+  Heading,
+} from '@chakra-ui/react'
 
 interface SingleBlogContext extends ParsedUrlQuery {
   id: string
@@ -55,15 +65,33 @@ const Blogs: NextPage<BlogProps> = ({ blog }) => {
       </Head>
 
       <main>
-        <div
-          dangerouslySetInnerHTML={{
-            __html: generateHTML(JSON.parse(blog.content), [
-              StarterKit,
-              Link,
-              Image,
-            ]),
-          }}
-        />
+        <Container maxW="container.lg" shadow="md" borderWidth="1px">
+          <Stack>
+            <Flex direction="column">
+              <Link href={`/creators/${blog.creator.id}`} passHref>
+                <ChakraLink color="twitter.600">{blog.creator.name}</ChakraLink>
+              </Link>
+              <Text>
+                Posted on {dayjs.unix(blog.updatedAt).format('MMMM D, YYYY')}
+              </Text>
+            </Flex>
+            <StackDivider borderColor="gray.600" borderWidth={0.3} />
+            <Heading color="twitter.900">{blog.title}</Heading>
+            <Text fontSize="2xl" fontWeight="semibold" color="gray.500">
+              {blog.title}
+            </Text>
+            <div
+              className="pt-5"
+              dangerouslySetInnerHTML={{
+                __html: generateHTML(JSON.parse(blog.content), [
+                  StarterKit,
+                  TiptapLink,
+                  Image,
+                ]),
+              }}
+            />
+          </Stack>
+        </Container>
       </main>
     </div>
   )

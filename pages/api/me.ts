@@ -21,6 +21,7 @@ export default function handler(
     console.error('JWT_SECRET is not defined')
     return res.status(500).json({ message: 'Something went wrong' })
   }
+  // console.log(jwt.sign({ id: 'a', name: 'Lam Nguyen', email: 'a' }, JWT_SECRET))
   const { id, name, email } = jwt.verify(token, JWT_SECRET) as Claim
   return res.status(200).json({ id, name, email })
 }

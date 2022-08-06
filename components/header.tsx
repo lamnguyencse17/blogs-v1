@@ -4,6 +4,7 @@ import {
   Box,
   CircularProgress,
   Flex,
+  Heading,
   IconButton,
   Link as ChakraLink,
   Menu,
@@ -21,20 +22,19 @@ import { HamburgerIcon } from '@chakra-ui/icons'
 
 const Header = () => {
   const { user } = useContext(UserContext)
+
   return (
     <Flex minWidth="max-content" alignItems="center" gap="2">
       <Box p="2">
         <Link href="/" passHref>
           <ChakraLink>
-            <Flex>
+            <Flex alignItems="center">
               <Image
                 src={logo}
                 className="mr-3 h-6 sm:h-9 w-fit"
                 alt="Dev's Rant Blogs Logo"
               />
-              <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
-                DEV&apos;S RANT
-              </span>
+              <Heading color="twitter.900">DEV&apos;S RANT</Heading>
             </Flex>
           </ChakraLink>
         </Link>
@@ -44,23 +44,23 @@ const Header = () => {
         <Show above="sm">
           <Flex gap={3} alignItems="center">
             <Link href="/" passHref>
-              <ChakraLink>Home</ChakraLink>
+              <ChakraLink color="twitter.900">Home</ChakraLink>
             </Link>
             <Spacer />
             <Link href="/about" passHref>
-              <ChakraLink colorScheme="twitter">About</ChakraLink>
+              <ChakraLink color="twitter.900">About</ChakraLink>
             </Link>
             {user.isLoading && (
               <>
                 <Spacer />
-                <CircularProgress isIndeterminate color="twitter" />
+                <CircularProgress isIndeterminate color="twitter.900" />
               </>
             )}
             {!user.isLoading && user.id === '' && (
               <>
                 <Spacer />
                 <Link href="/login" passHref>
-                  <ChakraLink>Login</ChakraLink>
+                  <ChakraLink color="twitter.900">Login</ChakraLink>
                 </Link>
               </>
             )}
@@ -71,11 +71,11 @@ const Header = () => {
                   aria-label="Menu"
                   icon={<HamburgerIcon />}
                   variant="outline"
-                  colorScheme="twitter"
+                  color="twitter.900"
                 >
                   Actions
                 </MenuButton>
-                <MenuList color="#1A94DA">
+                <MenuList color="twitter.900">
                   <MenuItem>Create a new blog</MenuItem>
                   <MenuDivider />
                   <Link href="/logout" passHref>
@@ -86,7 +86,7 @@ const Header = () => {
             )}
           </Flex>
         </Show>
-        <Show below="md">
+        <Show below="sm">
           <Menu>
             <MenuButton
               as={IconButton}
