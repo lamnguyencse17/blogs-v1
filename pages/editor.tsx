@@ -5,13 +5,15 @@ import Image from '@tiptap/extension-image'
 import TiptapLink from '@tiptap/extension-link'
 import Bold from '@tiptap/extension-bold'
 import {
+  Button,
   ButtonGroup,
   CircularProgress,
   Container,
+  Flex,
   IconButton,
   Tooltip,
 } from '@chakra-ui/react'
-import { useCallback, useState } from 'react'
+import { useCallback, useContext, useState } from 'react'
 import Head from 'next/head'
 import {
   TbBold,
@@ -32,6 +34,9 @@ import OrderedList from '@tiptap/extension-ordered-list'
 import Code from '@tiptap/extension-code'
 import debounce from 'lodash-es/debounce'
 import { Editor as TypeEditor } from '@tiptap/core'
+import { UserContext } from './_app'
+import { blogs } from '@prisma/client'
+import { useRouter } from 'next/router'
 
 const initialContent: JSONContent = {
   type: 'doc',
@@ -60,6 +65,38 @@ const Editor: NextPage = () => {
   })
 
   const [content, setContent] = useState<JSONContent>(initialContent)
+  const [isSubmitting, setSubmitting] = useState(false)
+  const { user } = useContext(UserContext)
+  const router = useRouter()
+  const handleSubmitBlog = async () => {
+    setSubmitting(true)
+    try {
+      const response = await fetch('/api/blogs', {
+        method: 'POST',
+        body: JSON.stringify({
+          content: JSON.stringify(content),
+          title: 'Test this title',
+          subTitle: 'Test this subtitle',
+          creatorId: user.id,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          accept: 'application/json',
+        },
+      })
+      if (!response.ok) {
+        console.log(await response.json())
+        setSubmitting(false)
+        return
+      }
+      const blog = (await response.json()) as blogs
+      localStorage.removeItem('devrant-draft')
+      router.push(`/blogs/${blog.id}`)
+    } catch (err) {
+      setSubmitting(false)
+      console.log(err)
+    }
+  }
   const storeContent = debounce((editor: TypeEditor) => {
     const newContent = editor.getJSON()
     setContent(newContent)
@@ -300,6 +337,11 @@ const Editor: NextPage = () => {
           </ButtonGroup>
         </ButtonGroup>
         <EditorContent editor={editor} />
+        <Flex alignItems="center" justifyContent="center">
+          <Button isLoading={isSubmitting} onClick={handleSubmitBlog}>
+            Submit
+          </Button>
+        </Flex>
       </main>
     </Container>
   )
