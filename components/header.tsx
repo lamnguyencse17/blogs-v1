@@ -76,7 +76,9 @@ const Header = () => {
                   Actions
                 </MenuButton>
                 <MenuList color="twitter.900">
-                  <MenuItem>Create a new blog</MenuItem>
+                  <Link href="/editor" passHref>
+                    <MenuItem as="a">Create a new blog</MenuItem>
+                  </Link>
                   <MenuDivider />
                   <Link href="/logout" passHref>
                     <MenuItem as="a">Sign out</MenuItem>
@@ -111,7 +113,9 @@ const Header = () => {
               )}
               {!user.isLoading && user.id !== '' && (
                 <>
-                  <MenuItem>Create a new blog</MenuItem>
+                  <Link href="/editor" passHref>
+                    <MenuItem as="a">Create a new blog</MenuItem>
+                  </Link>
                   <MenuDivider />
                   <Link href="/logout" passHref>
                     <MenuItem as="a">Sign out</MenuItem>

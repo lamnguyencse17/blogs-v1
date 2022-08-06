@@ -7,6 +7,7 @@ import { createContext, useEffect, useState } from 'react'
 import { userContextInitialValue } from '../libs/store'
 import { ChakraProvider } from '@chakra-ui/react'
 import theme from '../libs/theme'
+import '../styles/editor.css'
 
 export const UserContext = createContext({ user: userContextInitialValue })
 

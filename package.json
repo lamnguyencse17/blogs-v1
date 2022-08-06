@@ -25,6 +25,7 @@
     "@tiptap/extension-list-item": "^2.0.0-beta.23",
     "@tiptap/extension-ordered-list": "^2.0.0-beta.30",
     "@tiptap/html": "^2.0.0-beta.181",
+    "@tiptap/react": "^2.0.0-beta.114",
     "@tiptap/starter-kit": "^2.0.0-beta.191",
     "@tsndr/cloudflare-worker-jwt": "^2.0.1",
     "bcryptjs": "^2.4.3",
@@ -38,6 +39,7 @@
     "prisma": "^4.1.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-icons": "^4.4.0",
     "swr": "^1.3.0",
     "zod": "^3.17.10"
   },
@@ -45,6 +47,7 @@
     "@types/bcryptjs": "^2.4.2",
     "@types/cookie": "^0.5.1",
     "@types/jsonwebtoken": "^8.5.8",
+    "@types/lodash-es": "^4.17.6",
     "@types/node": "18.6.3",
     "@types/react": "18.0.15",
     "@types/react-dom": "18.0.6",
