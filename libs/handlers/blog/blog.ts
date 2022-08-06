@@ -1,13 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { z } from 'zod'
-import { prisma } from '../db/prisma'
-
-export const CreateBlogSchema = z.object({
-  creatorId: z.string(),
-  title: z.string().min(8),
-  subTitle: z.string().min(8),
-  content: z.string(),
-})
+import { prisma } from '../../db/prisma'
+import { CreateBlogSchema } from './types'
 
 export const createBlogHandler = async (
   req: NextApiRequest,

@@ -1,34 +1,22 @@
 import { NextPage } from 'next'
-import { useEditor, EditorContent, JSONContent } from '@tiptap/react'
+import { useEditor, JSONContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import TiptapLink from '@tiptap/extension-link'
 import Bold from '@tiptap/extension-bold'
 import {
   Button,
-  ButtonGroup,
   CircularProgress,
   Container,
+  Divider,
   Flex,
-  IconButton,
-  Tooltip,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Input,
 } from '@chakra-ui/react'
-import { useCallback, useContext, useState } from 'react'
+import { useContext, useEffect } from 'react'
 import Head from 'next/head'
-import {
-  TbBold,
-  TbBoldOff,
-  TbLink,
-  TbList,
-  TbPolaroid,
-  TbUnlink,
-  TbListNumbers,
-  TbArrowBarToRight,
-  TbArrowBarToLeft,
-  TbArrowsRight,
-  TbCodeOff,
-  TbCode,
-} from 'react-icons/tb'
 import BulletList from '@tiptap/extension-bullet-list'
 import OrderedList from '@tiptap/extension-ordered-list'
 import Code from '@tiptap/extension-code'
@@ -37,6 +25,10 @@ import { Editor as TypeEditor } from '@tiptap/core'
 import { UserContext } from './_app'
 import { blogs } from '@prisma/client'
 import { useRouter } from 'next/router'
+import EditorSection from '../components/editor'
+import { useFormik } from 'formik'
+import { CreateBlogSchema } from '../libs/handlers/blog/types'
+import { toFormikValidationSchema } from 'zod-formik-adapter'
 
 const initialContent: JSONContent = {
   type: 'doc',
@@ -64,20 +56,27 @@ const Editor: NextPage = () => {
     inline: true,
   })
 
-  const [content, setContent] = useState<JSONContent>(initialContent)
-  const [isSubmitting, setSubmitting] = useState(false)
   const { user } = useContext(UserContext)
   const router = useRouter()
-  const handleSubmitBlog = async () => {
-    setSubmitting(true)
+  const handleSubmitBlog = async ({
+    title,
+    subTitle,
+    content,
+    creatorId,
+  }: {
+    title: string
+    subTitle: string
+    content: string
+    creatorId: string
+  }) => {
     try {
       const response = await fetch('/api/blogs', {
         method: 'POST',
         body: JSON.stringify({
-          content: JSON.stringify(content),
-          title: 'Test this title',
-          subTitle: 'Test this subtitle',
-          creatorId: user.id,
+          content,
+          title,
+          subTitle,
+          creatorId,
         }),
         headers: {
           'Content-Type': 'application/json',
@@ -86,20 +85,40 @@ const Editor: NextPage = () => {
       })
       if (!response.ok) {
         console.log(await response.json())
-        setSubmitting(false)
         return
       }
       const blog = (await response.json()) as blogs
       localStorage.removeItem('devrant-draft')
-      router.push(`/blogs/${blog.id}`)
+      await router.push(`/blogs/${blog.id}`)
     } catch (err) {
-      setSubmitting(false)
       console.log(err)
     }
   }
+  const {
+    handleSubmit,
+    handleBlur,
+    values,
+    errors,
+    touched,
+    handleChange,
+    isSubmitting,
+    setFieldValue,
+  } = useFormik({
+    initialValues: {
+      title: '',
+      subTitle: '',
+      creatorId: user.id,
+      content: '',
+    },
+    onSubmit: handleSubmitBlog,
+    validationSchema: toFormikValidationSchema(CreateBlogSchema),
+  })
+  const updateContent = (newContent: JSONContent) => {
+    setFieldValue('content', JSON.stringify(newContent))
+  }
   const storeContent = debounce((editor: TypeEditor) => {
     const newContent = editor.getJSON()
-    setContent(newContent)
+    updateContent(newContent)
     localStorage.setItem('devrant-draft', JSON.stringify(newContent))
   }, 1000)
   const editor = useEditor({
@@ -112,7 +131,7 @@ const Editor: NextPage = () => {
       OrderedList,
       Code,
     ],
-    content,
+    content: initialContent,
     onUpdate: ({ editor }) => {
       storeContent(editor)
     },
@@ -126,44 +145,19 @@ const Editor: NextPage = () => {
         }
         const parsedContent = JSON.parse(draftContent)
         editor.commands.setContent(parsedContent)
-        setContent(parsedContent)
+        setFieldValue('content', draftContent)
       }
     },
   })
-
-  const setLink = useCallback(() => {
-    if (!editor) {
-      return
+  useEffect(() => {
+    if (user.id !== '') {
+      setFieldValue('creatorId', user.id)
     }
-    const previousUrl = editor.getAttributes('link').href
-    const url = window.prompt('URL', previousUrl)
-    if (url === null) {
-      return
-    }
-    if (url === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink().run()
-
-      return
-    }
-    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
-  }, [editor])
-  const addImage = useCallback(() => {
-    if (!editor) {
-      return
-    }
-    const url = window.prompt('URL')
-
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run()
-    }
-  }, [editor])
-
-  if (!editor) {
-    return null
-  }
+  }, [user, setFieldValue])
   if (!editor) {
     return <CircularProgress isIndeterminate color="twitter.900" />
   }
+
   return (
     <Container maxW="container.lg">
       <Head>
@@ -172,176 +166,55 @@ const Editor: NextPage = () => {
         <link rel="icon" href="/favicon.svg" />
       </Head>
       <main>
-        <ButtonGroup variant="outline" spacing="6">
-          <Tooltip
-            label={editor.isActive('bold') ? 'Unbold' : 'Bold'}
-            fontSize="md"
-            shouldWrapChildren
-          >
-            <IconButton
-              onClick={() => editor.chain().focus().toggleBold().run()}
-              isActive={editor.isActive('bold')}
-              variant="solid"
-              aria-label="Bold"
-              icon={editor.isActive('bold') ? <TbBoldOff /> : <TbBold />}
-            />
-          </Tooltip>
-          <Tooltip
-            label={editor.isActive('bold') ? 'Unset code' : 'Set code'}
-            fontSize="md"
-            shouldWrapChildren
-          >
-            <IconButton
-              onClick={() => editor.chain().focus().toggleCode().run()}
-              isActive={editor.isActive('code')}
-              variant="solid"
-              aria-label="Code"
-              icon={editor.isActive('code') ? <TbCodeOff /> : <TbCode />}
-            />
-          </Tooltip>
-          <ButtonGroup variant="outline">
-            <Tooltip label="Attach a link" fontSize="md" shouldWrapChildren>
-              <IconButton
-                icon={<TbLink />}
-                aria-label="Attach a link"
-                variant="solid"
-                onClick={setLink}
-                isActive={editor.isActive('link')}
+        <form onSubmit={handleSubmit}>
+          <FormControl isInvalid={!!errors.title || !!errors.subTitle}>
+            <div className="mb-6">
+              <FormLabel htmlFor="title">Title</FormLabel>
+              <Input
+                id="title"
+                type="text"
+                placeholder="Title"
+                name="title"
+                required={true}
+                value={values.title}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={!!errors.title && !!touched.title}
+                errorBorderColor="red.300"
+                color="twitter.900"
               />
-            </Tooltip>
-
-            <Tooltip label="Detach a link" fontSize="md" shouldWrapChildren>
-              <IconButton
-                aria-label="Detach a link"
-                onClick={() => editor.chain().focus().unsetLink().run()}
-                isDisabled={!editor.isActive('link')}
-                variant="solid"
-                icon={<TbUnlink />}
+              <FormErrorMessage>
+                {touched.title && errors.title}
+              </FormErrorMessage>
+            </div>
+            <div className="mb-6">
+              <FormLabel htmlFor="subTitle">Subtitle</FormLabel>
+              <Input
+                id="subTitle"
+                type="text"
+                placeholder="Subtitle"
+                name="subTitle"
+                required={true}
+                value={values.subTitle}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={!!errors.subTitle && !!touched.subTitle}
+                errorBorderColor="red.300"
+                color="twitter.900"
               />
-            </Tooltip>
-          </ButtonGroup>
-          <Tooltip label="Insert an image" fontSize="md" shouldWrapChildren>
-            <IconButton
-              aria-label="Insert an image"
-              onClick={addImage}
-              variant="solid"
-              icon={<TbPolaroid />}
-            />
-          </Tooltip>
-
-          <ButtonGroup variant="outline">
-            <Tooltip
-              label="Toggle bullet list"
-              fontSize="md"
-              shouldWrapChildren
-            >
-              <IconButton
-                icon={<TbList />}
-                aria-label="Toggle bullet list"
-                onClick={() => editor.chain().focus().toggleBulletList().run()}
-                isActive={editor.isActive('bulletList')}
-              />
-            </Tooltip>
-
-            <Tooltip label="Sink bullet list" fontSize="md" shouldWrapChildren>
-              <IconButton
-                aria-label="Sink bullet list"
-                icon={<TbArrowBarToRight />}
-                onClick={() =>
-                  editor.chain().focus().sinkListItem('listItem').run()
-                }
-                isDisabled={!editor.can().sinkListItem('listItem')}
-              />
-            </Tooltip>
-
-            <Tooltip label="Lift bullet list" fontSize="md" shouldWrapChildren>
-              <IconButton
-                aria-label="Lift bullet list"
-                icon={<TbArrowBarToLeft />}
-                onClick={() =>
-                  editor.chain().focus().liftListItem('listItem').run()
-                }
-                isDisabled={!editor.can().liftListItem('listItem')}
-              />
-            </Tooltip>
-
-            <Tooltip label="Split bullet list" fontSize="md" shouldWrapChildren>
-              <IconButton
-                aria-label="Split bullet list"
-                icon={<TbArrowsRight />}
-                onClick={() =>
-                  editor.chain().focus().splitListItem('listItem').run()
-                }
-                isDisabled={!editor.can().splitListItem('listItem')}
-              />
-            </Tooltip>
-          </ButtonGroup>
-          <ButtonGroup variant="outline">
-            <Tooltip
-              label="Toggle numbered list"
-              fontSize="md"
-              shouldWrapChildren
-            >
-              <IconButton
-                icon={<TbListNumbers />}
-                aria-label="Toggle numbered list"
-                onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                isActive={editor.isActive('orderedList')}
-              />
-            </Tooltip>
-
-            <Tooltip
-              label="Sink numbered list"
-              fontSize="md"
-              shouldWrapChildren
-            >
-              <IconButton
-                aria-label="Sink numbered list"
-                icon={<TbArrowBarToRight />}
-                onClick={() =>
-                  editor.chain().focus().sinkListItem('listItem').run()
-                }
-                isDisabled={!editor.can().sinkListItem('listItem')}
-              />
-            </Tooltip>
-
-            <Tooltip
-              label="Lift numbered list"
-              fontSize="md"
-              shouldWrapChildren
-            >
-              <IconButton
-                aria-label="Lift numbered list"
-                icon={<TbArrowBarToLeft />}
-                onClick={() =>
-                  editor.chain().focus().liftListItem('listItem').run()
-                }
-                isDisabled={!editor.can().liftListItem('listItem')}
-              />
-            </Tooltip>
-
-            <Tooltip
-              label="Split numbered list"
-              fontSize="md"
-              shouldWrapChildren
-            >
-              <IconButton
-                aria-label="Split numbered list"
-                icon={<TbArrowsRight />}
-                onClick={() =>
-                  editor.chain().focus().splitListItem('listItem').run()
-                }
-                isDisabled={!editor.can().splitListItem('listItem')}
-              />
-            </Tooltip>
-          </ButtonGroup>
-        </ButtonGroup>
-        <EditorContent editor={editor} />
-        <Flex alignItems="center" justifyContent="center">
-          <Button isLoading={isSubmitting} onClick={handleSubmitBlog}>
-            Submit
-          </Button>
-        </Flex>
+              <FormErrorMessage>
+                {touched.subTitle && errors.subTitle}
+              </FormErrorMessage>
+            </div>
+            <Divider />
+            <EditorSection editor={editor} />
+            <Flex alignItems="center" justifyContent="center" mt="5">
+              <Button isLoading={isSubmitting} type="submit">
+                Submit
+              </Button>
+            </Flex>
+          </FormControl>
+        </form>
       </main>
     </Container>
   )
