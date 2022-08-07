@@ -1,18 +1,24 @@
 import Head from 'next/head'
-import { useEffect } from 'react'
+import { useContext, useEffect } from 'react'
 import { CircularProgress, Heading } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
+import { UserContext } from './_app'
+import { userContextInitialValue } from '../libs/store'
 
 const Logout = () => {
   const router = useRouter()
+  const { setUser } = useContext(UserContext)
   useEffect(() => {
-    const timedRedirect = setTimeout(() => {
-      router.push('/')
+    const timedRedirect = setTimeout(async () => {
+      if (setUser) {
+        setUser({ ...userContextInitialValue, isLoading: false })
+      }
+      await router.push('/')
     }, 2000)
     return () => {
       clearTimeout(timedRedirect)
     }
-  }, [router])
+  }, [router, setUser])
   return (
     <div className="flex flex-col mx-auto items-center justify-center min-h-full">
       <Head>

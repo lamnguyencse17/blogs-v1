@@ -50,6 +50,7 @@ export default async function handler(
       httpOnly: true,
       sameSite: 'strict',
       secure: IS_PRODUCTION,
+      path: '/',
     })
   )
   return res.status(200).json({ ...hideUserData })

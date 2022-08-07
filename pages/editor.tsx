@@ -14,6 +14,7 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
+  useToast,
 } from '@chakra-ui/react'
 import { useContext, useEffect } from 'react'
 import Head from 'next/head'
@@ -27,7 +28,7 @@ import { blogs } from '@prisma/client'
 import { useRouter } from 'next/router'
 import EditorSection from '../components/editor'
 import { useFormik } from 'formik'
-import { CreateBlogSchema } from '../libs/handlers/blog/types'
+import { createBlogSchema } from '../libs/handlers/blog/types'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
 
 const initialContent: JSONContent = {
@@ -58,6 +59,7 @@ const Editor: NextPage = () => {
 
   const { user } = useContext(UserContext)
   const router = useRouter()
+  const toast = useToast()
   const handleSubmitBlog = async ({
     title,
     subTitle,
@@ -84,7 +86,13 @@ const Editor: NextPage = () => {
         },
       })
       if (!response.ok) {
-        console.log(await response.json())
+        const { message } = await response.json()
+        toast({
+          title: message,
+          duration: 5000,
+          isClosable: true,
+          status: 'error',
+        })
         return
       }
       const blog = (await response.json()) as blogs
@@ -111,7 +119,7 @@ const Editor: NextPage = () => {
       content: '',
     },
     onSubmit: handleSubmitBlog,
-    validationSchema: toFormikValidationSchema(CreateBlogSchema),
+    validationSchema: toFormikValidationSchema(createBlogSchema),
   })
   const updateContent = (newContent: JSONContent) => {
     setFieldValue('content', JSON.stringify(newContent))

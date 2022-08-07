@@ -3,13 +3,29 @@ import type { AppProps } from 'next/app'
 import Header from '../components/header'
 import useSWR, { Fetcher } from 'swr'
 import { UserClaim } from '../libs/auth'
-import { createContext, useEffect, useState } from 'react'
+import {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react'
 import { userContextInitialValue } from '../libs/store'
 import { ChakraProvider } from '@chakra-ui/react'
 import theme from '../libs/theme'
 import '../styles/editor.css'
 
-export const UserContext = createContext({ user: userContextInitialValue })
+export const UserContext = createContext<{
+  user: typeof userContextInitialValue
+  setUser?: Dispatch<
+    SetStateAction<{
+      id: string
+      name: string
+      email: string
+      isLoading: boolean
+    }>
+  >
+}>({ user: userContextInitialValue })
 
 const fetchUserHandler: Fetcher<UserClaim, string> = (...args) =>
   fetch(...args).then((res) => res.json())
@@ -29,7 +45,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <ChakraProvider theme={theme}>
-      <UserContext.Provider value={{ user }}>
+      <UserContext.Provider value={{ user, setUser }}>
         <div className="mx-12 h-full">
           <Header />
           <Component {...pageProps} />

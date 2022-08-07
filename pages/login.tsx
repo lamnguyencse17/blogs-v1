@@ -1,19 +1,67 @@
 import { NextPage } from 'next'
 import Head from 'next/head'
 import { useFormik } from 'formik'
-import { Button, FormControl, FormLabel, Input } from '@chakra-ui/react'
+import {
+  Button,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Input,
+  useToast,
+} from '@chakra-ui/react'
+import { toFormikValidationSchema } from 'zod-formik-adapter'
+import { HiddenUserData, loginSchema } from '../libs/auth'
+import { useContext } from 'react'
+import { UserContext } from './_app'
+import { useRouter } from 'next/router'
 
 const Login: NextPage = () => {
-  const { handleSubmit, values, errors, handleChange, isSubmitting } =
-    useFormik({
-      initialValues: {
-        email: '',
-        password: '',
-      },
-      onSubmit: (values) => {
-        console.log(values)
-      },
-    })
+  const toast = useToast()
+  const { user, setUser } = useContext(UserContext)
+  const router = useRouter()
+  const {
+    handleSubmit,
+    handleBlur,
+    values,
+    touched,
+    errors,
+    handleChange,
+    isSubmitting,
+  } = useFormik({
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    onSubmit: async (values) => {
+      if (setUser) {
+        setUser({ ...user, isLoading: true })
+      }
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        body: JSON.stringify(values),
+        headers: {
+          'Content-Type': 'application/json',
+          accept: 'application/json',
+        },
+      })
+      if (!response.ok) {
+        const { message } = await response.json()
+        toast({
+          title: message,
+          duration: 5000,
+          isClosable: true,
+          status: 'error',
+        })
+        return
+      }
+      const userData = (await response.json()) as HiddenUserData
+      if (setUser) {
+        setUser({ ...userData, isLoading: false })
+      }
+      await router.push('/')
+    },
+    validationSchema: toFormikValidationSchema(loginSchema),
+  })
   return (
     <div>
       <Head>
@@ -33,9 +81,11 @@ const Login: NextPage = () => {
               required={true}
               value={values.email}
               onChange={handleChange}
-              isInvalid={!!errors.email}
+              onBlur={handleBlur}
+              isInvalid={!!errors.email && !!touched.email}
               errorBorderColor="red.300"
             />
+            <FormErrorMessage>{touched.email && errors.email}</FormErrorMessage>
           </div>
           <div className="mb-6">
             <FormLabel htmlFor="password">Password</FormLabel>
@@ -47,9 +97,13 @@ const Login: NextPage = () => {
               required={true}
               value={values.password}
               onChange={handleChange}
-              isInvalid={!!errors.password}
+              onBlur={handleBlur}
+              isInvalid={!!errors.password && !!touched.password}
               errorBorderColor="red.300"
             />
+            <FormErrorMessage>
+              {touched.password && errors.password}
+            </FormErrorMessage>
           </div>
           <div className="mx-auto w-fit">
             <Button

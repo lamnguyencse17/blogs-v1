@@ -1,12 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { prisma } from '../../db/prisma'
-import { CreateBlogSchema } from './types'
+import { createBlogSchema } from './types'
 
 export const createBlogHandler = async (
   req: NextApiRequest,
   res: NextApiResponse
 ) => {
-  const createBlogRequest = CreateBlogSchema.parse(req.body)
+  const createBlogRequest = createBlogSchema.parse(req.body)
   const newBlog = await prisma.blogs.create({
     data: {
       ...createBlogRequest,
