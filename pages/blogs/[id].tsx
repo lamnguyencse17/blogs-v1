@@ -20,6 +20,7 @@ import {
   Link as ChakraLink,
   Text,
   Heading,
+  Box,
 } from '@chakra-ui/react'
 
 interface SingleBlogContext extends ParsedUrlQuery {
@@ -66,7 +67,7 @@ const Blogs: NextPage<BlogProps> = ({ blog }) => {
 
       <main>
         <Container maxW="container.lg" shadow="md" borderWidth="1px">
-          <Stack>
+          <Stack mb="5">
             <Flex direction="column">
               <Link href={`/creators/${blog.creator.id}`} passHref>
                 <ChakraLink color="twitter.600">{blog.creator.name}</ChakraLink>
@@ -80,8 +81,9 @@ const Blogs: NextPage<BlogProps> = ({ blog }) => {
             <Text fontSize="2xl" fontWeight="semibold" color="gray.500">
               {blog.title}
             </Text>
-            <div
-              className="pt-5"
+            <Box
+              pt="5"
+              pb="5"
               dangerouslySetInnerHTML={{
                 __html: generateHTML(JSON.parse(blog.content), [
                   StarterKit,

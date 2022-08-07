@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import { useContext, useEffect } from 'react'
-import { CircularProgress, Heading } from '@chakra-ui/react'
+import { Box, CircularProgress, Heading } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { UserContext } from './_app'
 import { userContextInitialValue } from '../libs/store'
@@ -20,17 +20,23 @@ const Logout = () => {
     }
   }, [router, setUser])
   return (
-    <div className="flex flex-col mx-auto items-center justify-center min-h-full">
+    <Box
+      display="flex"
+      flexDirection="column"
+      minHeight="100%"
+      justifyContent="center"
+      alignItems="center"
+    >
       <Head>
         <title>DEV&apos;S RANT BLOGS LOGOUT</title>
         <meta name="description" content="dev's rant blogs logout page" />
         <link rel="icon" href="/favicon.svg" />
       </Head>
       <Heading color="twitter.900">We are working on it...</Heading>
-      <div className="h-8 w-8">
+      <Box height="8" width="8">
         <CircularProgress isIndeterminate color="twitter.900" />
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
 

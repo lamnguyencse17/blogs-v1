@@ -5,6 +5,7 @@ import Image from '@tiptap/extension-image'
 import TiptapLink from '@tiptap/extension-link'
 import Bold from '@tiptap/extension-bold'
 import {
+  Box,
   Button,
   CircularProgress,
   Container,
@@ -176,7 +177,7 @@ const Editor: NextPage = () => {
       <main>
         <form onSubmit={handleSubmit}>
           <FormControl isInvalid={!!errors.title || !!errors.subTitle}>
-            <div className="mb-6">
+            <Box mb="6">
               <FormLabel htmlFor="title">Title</FormLabel>
               <Input
                 id="title"
@@ -194,8 +195,8 @@ const Editor: NextPage = () => {
               <FormErrorMessage>
                 {touched.title && errors.title}
               </FormErrorMessage>
-            </div>
-            <div className="mb-6">
+            </Box>
+            <Box mb="6">
               <FormLabel htmlFor="subTitle">Subtitle</FormLabel>
               <Input
                 id="subTitle"
@@ -213,7 +214,7 @@ const Editor: NextPage = () => {
               <FormErrorMessage>
                 {touched.subTitle && errors.subTitle}
               </FormErrorMessage>
-            </div>
+            </Box>
             <Divider />
             <EditorSection editor={editor} />
             <Flex alignItems="center" justifyContent="center" mt="5">

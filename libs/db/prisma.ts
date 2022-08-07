@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { IS_PRODUCTION } from '../configs'
 
 let prismaClient: PrismaClient | null = null
 
@@ -11,9 +12,10 @@ declare global {
 }
 
 export const prisma =
-  global.prisma ||
-  new PrismaClient({
-    log: ['query'],
-  })
+  global.prisma || IS_PRODUCTION
+    ? new PrismaClient()
+    : new PrismaClient({
+        log: ['query'],
+      })
 
 if (process.env.NODE_ENV !== 'production') global.prisma = prisma

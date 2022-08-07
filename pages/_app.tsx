@@ -11,9 +11,8 @@ import {
   useState,
 } from 'react'
 import { userContextInitialValue } from '../libs/store'
-import { ChakraProvider } from '@chakra-ui/react'
+import { Box, ChakraProvider } from '@chakra-ui/react'
 import theme from '../libs/theme'
-import '../styles/editor.css'
 
 export const UserContext = createContext<{
   user: typeof userContextInitialValue
@@ -46,10 +45,10 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ChakraProvider theme={theme}>
       <UserContext.Provider value={{ user, setUser }}>
-        <div className="mx-12 h-full">
+        <Box marginX="12" height="100%">
           <Header />
           <Component {...pageProps} />
-        </div>
+        </Box>
       </UserContext.Provider>
     </ChakraProvider>
   )

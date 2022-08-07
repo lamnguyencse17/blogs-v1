@@ -29,11 +29,9 @@ const Header = () => {
         <Link href="/" passHref>
           <ChakraLink>
             <Flex alignItems="center">
-              <Image
-                src={logo}
-                className="mr-3 h-6 sm:h-9 w-fit"
-                alt="Dev's Rant Blogs Logo"
-              />
+              <Box mr="3" height="9" width="9">
+                <Image src={logo} alt="Dev's Rant Blogs Logo" />
+              </Box>
               <Heading color="twitter.900">DEV&apos;S RANT</Heading>
             </Flex>
           </ChakraLink>

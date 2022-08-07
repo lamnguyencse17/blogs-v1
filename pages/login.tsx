@@ -2,6 +2,7 @@ import { NextPage } from 'next'
 import Head from 'next/head'
 import { useFormik } from 'formik'
 import {
+  Box,
   Button,
   FormControl,
   FormErrorMessage,
@@ -71,7 +72,7 @@ const Login: NextPage = () => {
       </Head>
       <form onSubmit={handleSubmit}>
         <FormControl isInvalid={!!errors.email || !!errors.password}>
-          <div className="mb-6">
+          <Box mb="6">
             <FormLabel htmlFor="email">Email</FormLabel>
             <Input
               id="email"
@@ -86,8 +87,8 @@ const Login: NextPage = () => {
               errorBorderColor="red.300"
             />
             <FormErrorMessage>{touched.email && errors.email}</FormErrorMessage>
-          </div>
-          <div className="mb-6">
+          </Box>
+          <Box mb="6">
             <FormLabel htmlFor="password">Password</FormLabel>
             <Input
               id="password"
@@ -104,8 +105,8 @@ const Login: NextPage = () => {
             <FormErrorMessage>
               {touched.password && errors.password}
             </FormErrorMessage>
-          </div>
-          <div className="mx-auto w-fit">
+          </Box>
+          <Box marginX="auto" width="fit-content">
             <Button
               type="submit"
               isLoading={isSubmitting}
@@ -116,7 +117,7 @@ const Login: NextPage = () => {
             >
               Sign in
             </Button>
-          </div>
+          </Box>
         </FormControl>
       </form>
     </div>
