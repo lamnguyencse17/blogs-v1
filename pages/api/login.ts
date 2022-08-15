@@ -45,8 +45,8 @@ export default async function handler(
   res.setHeader(
     'set-cookie',
     cookie.serialize('Authorization', token, {
-      expires: new Date(Date.now() + 3600 * 24 * 1000),
-      maxAge: 60 * 60 * 24,
+      maxAge: 3600 * 24,
+      expires: new Date(Date.now() + 3600 * 24),
       httpOnly: true,
       sameSite: 'strict',
       secure: IS_PRODUCTION,

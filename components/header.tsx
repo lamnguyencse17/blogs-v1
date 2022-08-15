@@ -78,7 +78,7 @@ const Header = () => {
                     <MenuItem as="a">Create a new blog</MenuItem>
                   </Link>
                   <MenuDivider />
-                  <Link href="/logout" passHref>
+                  <Link href="/logout" passHref prefetch={false}>
                     <MenuItem as="a">Sign out</MenuItem>
                   </Link>
                 </MenuList>
