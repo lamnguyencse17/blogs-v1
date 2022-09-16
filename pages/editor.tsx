@@ -70,7 +70,7 @@ const Editor: NextPage = () => {
     title: string
     subTitle: string
     content: string
-    creatorId: string
+    creatorId: number | null
   }) => {
     try {
       const response = await fetch('/api/blogs', {
@@ -121,15 +121,20 @@ const Editor: NextPage = () => {
     },
     onSubmit: handleSubmitBlog,
     validationSchema: toFormikValidationSchema(createBlogSchema),
+    validateOnBlur: true,
+    validateOnChange: false,
   })
+
   const updateContent = (newContent: JSONContent) => {
     setFieldValue('content', JSON.stringify(newContent))
   }
+
   const storeContent = debounce((editor: TypeEditor) => {
     const newContent = editor.getJSON()
     updateContent(newContent)
     localStorage.setItem('devrant-draft', JSON.stringify(newContent))
   }, 1000)
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -159,7 +164,7 @@ const Editor: NextPage = () => {
     },
   })
   useEffect(() => {
-    if (user.id !== '') {
+    if (user.id !== null) {
       setFieldValue('creatorId', user.id)
     }
   }, [user, setFieldValue])

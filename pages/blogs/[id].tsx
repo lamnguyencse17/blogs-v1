@@ -30,14 +30,14 @@ interface SingleBlogContext extends ParsedUrlQuery {
 export const getStaticPaths: GetStaticPaths = async () => {
   const blogIds = await GetIdsForBlogPath()
   return {
-    paths: blogIds.map((id) => ({ params: { id } })),
+    paths: blogIds.map((id) => ({ params: { id: id.toString() } })),
     fallback: false, // can also be true or 'blocking'
   }
 }
 
 export const getStaticProps: GetStaticProps = async (context) => {
   const { id } = context.params as SingleBlogContext
-  const blog = await GetBlogById(id)
+  const blog = await GetBlogById(parseInt(id))
   if (!blog) {
     return {
       props: {},
@@ -91,6 +91,7 @@ const Blogs: NextPage<BlogProps> = ({ blog }) => {
                   Image,
                 ]),
               }}
+              className="content"
             />
           </Stack>
         </Container>

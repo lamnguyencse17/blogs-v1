@@ -54,7 +54,7 @@ const Header = () => {
                 <CircularProgress isIndeterminate color="twitter.900" />
               </>
             )}
-            {!user.isLoading && user.id === '' && (
+            {!user.isLoading && user.id === null && (
               <>
                 <Spacer />
                 <Link href="/login" passHref>
@@ -62,7 +62,7 @@ const Header = () => {
                 </Link>
               </>
             )}
-            {!user.isLoading && user.id !== '' && (
+            {!user.isLoading && user.id !== null && (
               <Menu>
                 <MenuButton
                   as={IconButton}
@@ -104,12 +104,12 @@ const Header = () => {
               <Link href="/about" passHref>
                 <MenuItem as="a">About</MenuItem>
               </Link>
-              {!user.isLoading && user.id === '' && (
+              {!user.isLoading && user.id === null && (
                 <Link href="/login" passHref>
                   <MenuItem as="a">Sign in</MenuItem>
                 </Link>
               )}
-              {!user.isLoading && user.id !== '' && (
+              {!user.isLoading && user.id !== null && (
                 <>
                   <Link href="/editor" passHref>
                     <MenuItem as="a">Create a new blog</MenuItem>

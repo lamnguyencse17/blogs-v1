@@ -12,7 +12,7 @@ import Card from '../../components/creator/card'
 export const getStaticPaths: GetStaticPaths = async () => {
   const creatorIds = await getIdsForCreatorPath()
   return {
-    paths: creatorIds.map((id) => ({ params: { id } })),
+    paths: creatorIds.map((id) => ({ params: { id: id.toString() } })),
     fallback: false, // can also be true or 'blocking'
   }
 }
@@ -23,7 +23,7 @@ interface SingleCreatorContext extends ParsedUrlQuery {
 
 export const getStaticProps: GetStaticProps = async (context) => {
   const { id } = context.params as SingleCreatorContext
-  const creator = await getCreatorById(id)
+  const creator = await getCreatorById(parseInt(id))
   if (!creator) {
     return {
       props: {},

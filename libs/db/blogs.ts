@@ -40,7 +40,7 @@ export type SingleBlogPath = Awaited<
   Prisma.PromiseReturnType<typeof GetIdsForBlogPath>
 >
 
-export const GetBlogById = async (id: string) => {
+export const GetBlogById = async (id: number) => {
   const blog = await prisma.blogs.findUnique({
     where: {
       id,

@@ -19,7 +19,7 @@ export const getIdsForCreatorPath = async () => {
   return creators.map((creator) => creator.id)
 }
 
-export const getCreatorById = async (id: string) => {
+export const getCreatorById = async (id: number) => {
   const creator = await prisma.users.findUnique({
     where: { id },
     select: {
@@ -45,6 +45,12 @@ export const getCreatorById = async (id: string) => {
       updatedAt: dayjs(blog.updatedAt).unix(),
     })),
   }
+}
+
+export const createUser = (data: Prisma.usersCreateInput) => {
+  return prisma.users.create({
+    data,
+  })
 }
 
 export type SingleFetchedCreator = Awaited<

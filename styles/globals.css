@@ -47,3 +47,29 @@ a {
 .ProseMirror ol ol ol {
   list-style: lower-alpha;
 }
+
+.content ul {
+  margin-left: 1rem;
+  list-style: disc outside none;
+}
+
+.content ul ul {
+  list-style-type: circle;
+}
+
+.content ul ul ul {
+  list-style-type: square;
+}
+
+.content ol {
+  margin-left: 1rem;
+  list-style: decimal outside none;
+}
+
+.content ol ol {
+  list-style: decimal-leading-zero;
+}
+
+.content ol ol ol {
+  list-style: lower-alpha;
+}

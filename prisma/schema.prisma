@@ -1,28 +1,28 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextIndex"]
+  previewFeatures = ["fullTextIndex", "fullTextSearch"] 
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgres"
   url      = env("DATABASE_URL")
 }
 
 model blogs {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  content   String
+  id        Int   @id @default(autoincrement())
+  content   String @db.Text
   title     String
   subTitle  String
-  creatorId String   @db.ObjectId
+  creatorId Int   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  creator   users    @relation(fields: [creatorId], references: [id])
+  creator   users    @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
-  @@fulltext([title(sort: Desc), content])
+  @@index([creatorId])
 }
 
 model users {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        Int   @id @default(autoincrement())
   name      String
   email     String   @unique
   password  String

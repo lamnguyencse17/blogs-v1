@@ -10,27 +10,20 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { userContextInitialValue } from '../libs/store'
+import { userContextInitialValue, UserContextType } from '../libs/store'
 import { Box, ChakraProvider } from '@chakra-ui/react'
 import theme from '../libs/theme'
 
 export const UserContext = createContext<{
-  user: typeof userContextInitialValue
-  setUser?: Dispatch<
-    SetStateAction<{
-      id: string
-      name: string
-      email: string
-      isLoading: boolean
-    }>
-  >
+  user: UserContextType
+  setUser?: Dispatch<SetStateAction<UserContextType>>
 }>({ user: userContextInitialValue })
 
 const fetchUserHandler: Fetcher<UserClaim, string> = (...args) =>
   fetch(...args).then((res) => res.json())
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const [user, setUser] = useState(userContextInitialValue)
+  const [user, setUser] = useState<UserContextType>(userContextInitialValue)
   const { data: fetchedUser, error } = useSWR('/api/me', fetchUserHandler)
 
   useEffect(() => {
