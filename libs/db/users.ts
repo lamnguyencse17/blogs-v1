@@ -56,3 +56,16 @@ export const createUser = (data: Prisma.usersCreateInput) => {
 export type SingleFetchedCreator = Awaited<
   Prisma.PromiseReturnType<typeof getCreatorById>
 >
+
+export const getCreatorByIdForAuthenticated = async (id: number) => {
+  return prisma.users.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  })
+}

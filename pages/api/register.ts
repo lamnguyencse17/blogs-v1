@@ -31,6 +31,7 @@ export default async function handler(
     name,
     email,
     password: hashedPassword,
+    avatar: 'https://ui-avatars.com/api/?name=' + name.replace(/ /g, '+'),
   })
 
   const token = jwt.sign(

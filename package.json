@@ -33,6 +33,7 @@
     "dayjs": "^1.11.4",
     "formik": "^2.2.9",
     "framer-motion": "^6",
+    "jose": "^4.9.3",
     "jsonwebtoken": "^8.5.1",
     "lodash-es": "^4.17.21",
     "next": "12.2.3",
