@@ -47,7 +47,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
     }
   }
   return {
-    props: { blog: { ...blog, updatedAt: dayjs(blog.updatedAt).unix() } },
+    props: { blog },
     revalidate: 60,
   }
 }

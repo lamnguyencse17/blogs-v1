@@ -17,6 +17,13 @@ type CardProps = IndexBlogs[0]
 const Card = ({ id, title, subTitle, creator, updatedAt }: CardProps) => {
   const dateDifference = useMemo(() => {
     const diff = dayjs().diff(dayjs.unix(updatedAt), 'h')
+    if (diff < 1) {
+      const minuteDiff = dayjs().diff(dayjs.unix(updatedAt), 'minute')
+      if (minuteDiff < 5) {
+        return 'just now'
+      }
+      return `${minuteDiff}m`
+    }
     if (diff > 24) {
       return `${dayjs().diff(dayjs.unix(updatedAt), 'day')}d`
     }

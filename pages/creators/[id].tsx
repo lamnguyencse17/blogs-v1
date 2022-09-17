@@ -43,10 +43,11 @@ type CreatorProps = {
 }
 
 const Creators: NextPage<CreatorProps> = ({ creator }) => {
+  const title = `DEV'S RANT BLOGS - ${creator.name}`
   return (
     <Box>
       <Head>
-        <title>DEV&apos;S RANT BLOGS - {creator.name}</title>
+        <title>{title}</title>
         <meta
           name="description"
           content={`dev's rant blogs creator ${creator.name} page`}

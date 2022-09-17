@@ -77,6 +77,9 @@ const Header = () => {
                   <Link href="/editor" passHref>
                     <MenuItem as="a">Create a new blog</MenuItem>
                   </Link>
+                  <Link href="/creators/profile" passHref>
+                    <MenuItem as="a">Your profile</MenuItem>
+                  </Link>
                   <MenuDivider />
                   <Link href="/logout" passHref prefetch={false}>
                     <MenuItem as="a">Sign out</MenuItem>
@@ -113,6 +116,9 @@ const Header = () => {
                 <>
                   <Link href="/editor" passHref>
                     <MenuItem as="a">Create a new blog</MenuItem>
+                  </Link>
+                  <Link href="/creators/profile" passHref>
+                    <MenuItem as="a">Your profile</MenuItem>
                   </Link>
                   <MenuDivider />
                   <Link href="/logout" passHref>
