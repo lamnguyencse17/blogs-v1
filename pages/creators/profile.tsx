@@ -3,8 +3,19 @@ import Head from 'next/head'
 import * as jose from 'jose'
 import { JWT_SECRET } from '../../libs/configs'
 import { getCreatorByIdForAuthenticated } from '../../libs/db/users'
-import { Claim } from '../../libs/auth'
-import { useFormik } from 'formik'
+import {
+  Claim,
+  UpdateAccountInputs,
+  updateAccountSchema,
+} from '../../libs/auth'
+// import { useFormik } from 'formik'
+import {
+  FieldError,
+  FieldErrorsImpl,
+  SubmitHandler,
+  useForm,
+} from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Box,
   Button,
@@ -49,78 +60,105 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 }
 
-type ProfilePageProps = {
-  creator: Awaited<ReturnType<typeof getCreatorByIdForAuthenticated>>
+type CustomErrors = FieldErrorsImpl<UpdateAccountInputs> & {
+  general?: FieldError
 }
 
-const ProfilePage: NextPage<ProfilePageProps> = () => {
+type ProfilePageProps = {
+  creator: NonNullable<
+    Awaited<ReturnType<typeof getCreatorByIdForAuthenticated>>
+  >
+}
+
+const ProfilePage: NextPage<ProfilePageProps> = ({ creator }) => {
   const {
+    register,
     handleSubmit,
-    handleBlur,
-    values,
-    touched,
-    errors,
-    handleChange,
-    isSubmitting,
-  } = useFormik({
-    initialValues: {
-      email: '',
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<UpdateAccountInputs>({
+    resolver: zodResolver(updateAccountSchema),
+    defaultValues: {
+      email: null,
       password: '',
-      confirmPassword: '',
+      newPassword: null,
+      confirmPassword: null,
     },
-    onSubmit: async () => {
-      // if (setUser) {
-      //   setUser({ ...user, isLoading: true })
-      // }
-      // const response = await fetch('/api/login', {
-      //   method: 'POST',
-      //   body: JSON.stringify(values),
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     accept: 'application/json',
-      //   },
-      // })
-      // if (!response.ok) {
-      //   const { message } = await response.json()
-      //   toast({
-      //     title: message,
-      //     duration: 5000,
-      //     isClosable: true,
-      //     status: 'error',
-      //   })
-      //   return
-      // }
-      // const userData = (await response.json()) as HiddenUserData
-      // if (setUser) {
-      //   setUser({ ...userData, isLoading: false })
-      // }
-    },
-    // validationSchema: toFormikValidationSchema(loginSchema),
   })
+  const onSubmit: SubmitHandler<UpdateAccountInputs> = async (values) => {
+    if (values.email === creator.email) {
+      setError('email', {
+        message: 'Old email and new email should not be the same',
+      })
+      return
+    }
+    console.log(values)
+    const response = await fetch(`/api/creators/${creator.id}`, {
+      method: 'PUT',
+      body: JSON.stringify(values),
+      headers: {
+        'Content-Type': 'application/json',
+        accept: 'application/json',
+      },
+    })
+    console.log(response)
+  }
+  const customError = errors as CustomErrors
   return (
     <>
       <Head>
         <title>DEV&apos;S RANT BLOGS - Your profile</title>
       </Head>
       <main>
-        <form onSubmit={handleSubmit}>
-          <FormControl isInvalid={!!errors.email || !!errors.password}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <FormControl
+            isInvalid={
+              !!errors.email ||
+              !!errors.password ||
+              !!errors.confirmPassword ||
+              !!errors.newPassword
+            }
+          >
             <Box mb="6">
               <FormLabel htmlFor="email">Email</FormLabel>
               <Input
                 id="email"
                 placeholder="Email"
                 type="email"
-                name="email"
-                required={true}
-                value={values.email}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={!!errors.email && !!touched.email}
+                isInvalid={!!errors.email}
+                {...register('email')}
                 errorBorderColor="red.300"
               />
               <FormErrorMessage>
-                {touched.email && errors.email}
+                {errors.email && errors.email.message}
+              </FormErrorMessage>
+            </Box>
+            <Box mb="6">
+              <FormLabel htmlFor="confirmPassword">New password</FormLabel>
+              <Input
+                id="newPassword"
+                type="newPassword"
+                placeholder="Set your new password"
+                isInvalid={!!errors.newPassword}
+                {...register('newPassword')}
+                errorBorderColor="red.300"
+              />
+              <FormErrorMessage>
+                {errors.newPassword && errors.newPassword.message}
+              </FormErrorMessage>
+            </Box>
+            <Box mb="6">
+              <FormLabel htmlFor="confirmPassword">Confirm password</FormLabel>
+              <Input
+                id="confirmPassword"
+                type="confirmPassword"
+                placeholder="Confirm your password"
+                isInvalid={!!errors.confirmPassword}
+                {...register('confirmPassword')}
+                errorBorderColor="red.300"
+              />
+              <FormErrorMessage>
+                {errors.confirmPassword && errors.confirmPassword.message}
               </FormErrorMessage>
             </Box>
             <Box mb="6">
@@ -129,17 +167,16 @@ const ProfilePage: NextPage<ProfilePageProps> = () => {
                 id="password"
                 type="password"
                 placeholder="Password"
-                name="password"
-                required={true}
-                value={values.password}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={!!errors.password && !!touched.password}
+                isInvalid={!!errors.password}
+                {...register('password')}
                 errorBorderColor="red.300"
               />
               <FormErrorMessage>
-                {touched.password && errors.password}
+                {errors.password && errors.password.message}
               </FormErrorMessage>
+            </Box>
+            <Box color="red.300">
+              {customError.general && customError.general.message}
             </Box>
             <Box marginX="auto" width="fit-content">
               <Button

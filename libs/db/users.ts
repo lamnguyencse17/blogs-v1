@@ -64,8 +64,28 @@ export const getCreatorByIdForAuthenticated = async (id: number) => {
       id: true,
       name: true,
       email: true,
-      createdAt: true,
-      updatedAt: true,
+      createdAt: false,
+      updatedAt: false,
+    },
+  })
+}
+
+export const getUserContext = async (id: number) => {
+  return prisma.users.findUnique({
+    where: { id },
+  })
+}
+
+export const updateUser = async (id: number, data: Prisma.usersUpdateInput) => {
+  return prisma.users.update({
+    where: { id },
+    data,
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      createdAt: false,
+      updatedAt: false,
     },
   })
 }
