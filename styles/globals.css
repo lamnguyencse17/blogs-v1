@@ -73,3 +73,7 @@ a {
 .content ol ol ol {
   list-style: lower-alpha;
 }
+
+.content p {
+  margin-top: 1rem;
+}
