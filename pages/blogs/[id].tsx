@@ -31,7 +31,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const blogIds = await GetIdsForBlogPath()
   return {
     paths: blogIds.map((id) => ({ params: { id: id.toString() } })),
-    fallback: false, // can also be true or 'blocking'
+    fallback: 'blocking', // can also be true or 'blocking'
   }
 }
 
@@ -48,7 +48,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
   }
   return {
     props: { blog },
-    revalidate: 60,
+    revalidate: 10,
   }
 }
 
