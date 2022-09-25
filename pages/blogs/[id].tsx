@@ -79,7 +79,7 @@ const Blogs: NextPage<BlogProps> = ({ blog }) => {
             <StackDivider borderColor="gray.600" borderWidth={0.3} />
             <Heading color="twitter.900">{blog.title}</Heading>
             <Text fontSize="2xl" fontWeight="semibold" color="gray.500">
-              {blog.title}
+              {blog.subTitle}
             </Text>
             <Box
               pt="5"
