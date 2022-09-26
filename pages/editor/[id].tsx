@@ -1,9 +1,9 @@
-import { NextPage } from 'next'
-import { useEditor, JSONContent } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
-import Image from '@tiptap/extension-image'
-import TiptapLink from '@tiptap/extension-link'
-import Bold from '@tiptap/extension-bold'
+import { GetServerSideProps, NextPage } from 'next'
+import { ParsedUrlQuery } from 'querystring'
+import * as jose from 'jose'
+import { JWT_SECRET } from '../../libs/configs'
+import { Claim } from '../../libs/auth'
+import { GetBlogById, SingleFetchedBlog } from '../../libs/db/blogs'
 import {
   Box,
   Button,
@@ -17,37 +17,79 @@ import {
   Input,
   useToast,
 } from '@chakra-ui/react'
-import { useContext, useEffect } from 'react'
-import Head from 'next/head'
+import StarterKit from '@tiptap/starter-kit'
+import Image from '@tiptap/extension-image'
+import TiptapLink from '@tiptap/extension-link'
+import Bold from '@tiptap/extension-bold'
 import BulletList from '@tiptap/extension-bullet-list'
 import OrderedList from '@tiptap/extension-ordered-list'
 import Code from '@tiptap/extension-code'
-import debounce from 'lodash-es/debounce'
-import { Editor as TypeEditor } from '@tiptap/core'
-import { UserContext } from './_app'
-import { blogs } from '@prisma/client'
+import { Editor as TypeEditor, JSONContent } from '@tiptap/core'
+import { useContext, useEffect } from 'react'
+import { UserContext } from '../_app'
 import { useRouter } from 'next/router'
-import EditorSection from '../components/editor'
+import { blogs } from '@prisma/client'
 import { useFormik } from 'formik'
-import { createBlogSchema } from '../libs/handlers/blog/types'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
+import { createBlogSchema } from '../../libs/handlers/blog/types'
+import { debounce } from 'lodash-es'
+import { useEditor } from '@tiptap/react'
+import Head from 'next/head'
+import EditorSection from '../../components/editor'
 
-const initialContent: JSONContent = {
-  type: 'doc',
-  content: [
-    {
-      type: 'paragraph',
-      content: [
-        {
-          type: 'text',
-          text: 'Hello World! 🌎️ ',
-        },
-      ],
-    },
-  ],
+interface EditBlogParams extends ParsedUrlQuery {
+  id: string
 }
 
-const Editor: NextPage = () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { id: blogId } = context.params as EditBlogParams
+  const token = context.req.cookies['Authorization']
+  if (!token) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: '/login',
+      },
+      props: {},
+    }
+  }
+  try {
+    const decoded = await jose.jwtVerify(
+      token,
+      new TextEncoder().encode(JWT_SECRET)
+    )
+    const { id: userId } = decoded.payload as Claim
+    if (!userId) {
+      throw new Error('User id not found')
+    }
+    const blog = await GetBlogById(parseInt(blogId))
+    if (!blog) {
+      return {
+        props: {},
+        redirect: {
+          destination: '/',
+        },
+      }
+    }
+    return {
+      props: { blog },
+    }
+  } catch (err) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: '/login',
+      },
+      props: {},
+    }
+  }
+}
+
+type BlogProps = {
+  blog: NonNullable<SingleFetchedBlog>
+}
+
+const EditBlog: NextPage<BlogProps> = ({ blog }) => {
   TiptapLink.configure({
     autolink: true,
     openOnClick: true,
@@ -132,7 +174,10 @@ const Editor: NextPage = () => {
   const storeContent = debounce((editor: TypeEditor) => {
     const newContent = editor.getJSON()
     updateContent(newContent)
-    localStorage.setItem('devrant-draft', JSON.stringify(newContent))
+    localStorage.setItem(
+      `devrant-edit-draft-${blog.id}`,
+      JSON.stringify(newContent)
+    )
   }, 1000)
 
   const editor = useEditor({
@@ -145,16 +190,16 @@ const Editor: NextPage = () => {
       OrderedList,
       Code,
     ],
-    content: initialContent,
+    content: JSON.parse(blog.content),
     onUpdate: ({ editor }) => {
       storeContent(editor)
     },
     onCreate: ({ editor }) => {
-      const draftContent = localStorage.getItem('devrant-draft')
+      const draftContent = localStorage.getItem(`devrant-edit-draft-${blog.id}`)
       if (draftContent) {
         const keepDraft = confirm('do you want to continue with the draft?')
         if (!keepDraft) {
-          localStorage.removeItem('devrant-draft')
+          localStorage.removeItem(`devrant-edit-draft-${blog.id}`)
           return
         }
         const parsedContent = JSON.parse(draftContent)
@@ -234,4 +279,4 @@ const Editor: NextPage = () => {
   )
 }
 
-export default Editor
+export default EditBlog
