@@ -24,6 +24,7 @@ import Bold from '@tiptap/extension-bold'
 import BulletList from '@tiptap/extension-bullet-list'
 import OrderedList from '@tiptap/extension-ordered-list'
 import Code from '@tiptap/extension-code'
+import Heading from '@tiptap/extension-heading'
 import { Editor as TypeEditor, JSONContent } from '@tiptap/core'
 import { useContext, useEffect } from 'react'
 import { UserContext } from '../_app'
@@ -31,14 +32,12 @@ import { useRouter } from 'next/router'
 import { blogs } from '@prisma/client'
 import { useFormik } from 'formik'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
-import {
-  createBlogSchema,
-  editBlogSchema,
-} from '../../libs/handlers/blog/types'
+import { createBlogSchema } from '../../libs/handlers/blog/types'
 import { debounce } from 'lodash-es'
 import { useEditor } from '@tiptap/react'
 import Head from 'next/head'
 import EditorSection from '../../components/editor'
+import TextAlign from '@tiptap/extension-text-align'
 
 interface EditBlogParams extends ParsedUrlQuery {
   id: string
@@ -103,6 +102,10 @@ const EditBlog: NextPage<BlogProps> = ({ blog }) => {
     inline: true,
   })
 
+  Heading.configure({
+    levels: [1, 2, 3],
+  })
+
   const { user } = useContext(UserContext)
   const router = useRouter()
   const toast = useToast()
@@ -117,7 +120,6 @@ const EditBlog: NextPage<BlogProps> = ({ blog }) => {
     content: string
     creatorId: number | null
   }) => {
-    console.log('SUBMITTING')
     try {
       const response = await fetch(`/api/blogs/${blog.id}`, {
         method: 'PUT',
@@ -144,7 +146,7 @@ const EditBlog: NextPage<BlogProps> = ({ blog }) => {
       }
       const newBlog = (await response.json()) as blogs
       localStorage.removeItem('devrant-draft')
-      // await router.push(`/blogs/${newBlog.id}`)
+      await router.push(`/blogs/${newBlog.id}`)
     } catch (err) {
       console.log(err)
     }
@@ -193,6 +195,10 @@ const EditBlog: NextPage<BlogProps> = ({ blog }) => {
       BulletList,
       OrderedList,
       Code,
+      Heading,
+      TextAlign.configure({
+        types: ['heading', 'paragraph', 'image'],
+      }),
     ],
     content: JSON.parse(blog.content),
     onUpdate: ({ editor }) => {

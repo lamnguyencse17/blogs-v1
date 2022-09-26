@@ -1,4 +1,11 @@
-import { ButtonGroup, Divider, IconButton, Tooltip } from '@chakra-ui/react'
+import {
+  Button,
+  ButtonGroup,
+  Divider,
+  Flex,
+  IconButton,
+  Tooltip,
+} from '@chakra-ui/react'
 import {
   TbArrowBarToLeft,
   TbArrowBarToRight,
@@ -12,6 +19,11 @@ import {
   TbListNumbers,
   TbPolaroid,
   TbUnlink,
+  TbAlignJustified,
+  TbAlignLeft,
+  TbAlignCenter,
+  TbAlignRight,
+  TbAntennaBarsOff,
 } from 'react-icons/tb'
 import { Editor, EditorContent } from '@tiptap/react'
 import { useCallback } from 'react'
@@ -49,13 +61,15 @@ const EditorSection = ({ editor }: EditorSectionProps) => {
   }, [editor])
   return (
     <>
-      <ButtonGroup
-        variant="outline"
-        spacing="6"
-        height="10"
+      <Flex
+        direction="row"
+        justifyContent="center"
+        gap="3"
         width="100%"
+        height="fit-content"
         mt="5"
         mb="5"
+        flexFlow="wrap"
       >
         <Tooltip
           label={editor.isActive('bold') ? 'Unbold' : 'Bold'}
@@ -70,7 +84,6 @@ const EditorSection = ({ editor }: EditorSectionProps) => {
             icon={editor.isActive('bold') ? <TbBoldOff /> : <TbBold />}
           />
         </Tooltip>
-        <Divider orientation="vertical" />
         <Tooltip
           label={editor.isActive('bold') ? 'Unset code' : 'Set code'}
           fontSize="md"
@@ -84,6 +97,36 @@ const EditorSection = ({ editor }: EditorSectionProps) => {
             icon={editor.isActive('code') ? <TbCodeOff /> : <TbCode />}
           />
         </Tooltip>
+        <Divider orientation="vertical" />
+        <ButtonGroup variant="outline">
+          <Button
+            onClick={() =>
+              editor.chain().focus().toggleHeading({ level: 1 }).run()
+            }
+            isActive={editor.isActive('heading', { level: 1 })}
+            variant="solid"
+          >
+            H1
+          </Button>
+          <Button
+            onClick={() =>
+              editor.chain().focus().toggleHeading({ level: 2 }).run()
+            }
+            isActive={editor.isActive('heading', { level: 2 })}
+            variant="solid"
+          >
+            H2
+          </Button>
+          <Button
+            onClick={() =>
+              editor.chain().focus().toggleHeading({ level: 3 }).run()
+            }
+            isActive={editor.isActive('heading', { level: 3 })}
+            variant="solid"
+          >
+            H3
+          </Button>
+        </ButtonGroup>
         <Divider orientation="vertical" />
         <ButtonGroup variant="outline">
           <Tooltip label="Attach a link" fontSize="md" shouldWrapChildren>
@@ -160,6 +203,7 @@ const EditorSection = ({ editor }: EditorSectionProps) => {
           </Tooltip>
         </ButtonGroup>
         <Divider orientation="vertical" />
+        <br />
         <ButtonGroup variant="outline">
           <Tooltip
             label="Toggle numbered list"
@@ -207,7 +251,73 @@ const EditorSection = ({ editor }: EditorSectionProps) => {
             />
           </Tooltip>
         </ButtonGroup>
-      </ButtonGroup>
+        <ButtonGroup variant="outline">
+          <Tooltip
+            label="Align paragraph left"
+            fontSize="md"
+            shouldWrapChildren
+          >
+            <IconButton
+              icon={<TbAlignLeft />}
+              aria-label="Align paragraph left"
+              onClick={() => editor.chain().focus().setTextAlign('left').run()}
+              isActive={editor.isActive({ textAlign: 'left' })}
+            />
+          </Tooltip>
+
+          <Tooltip
+            label="Align paragraph center"
+            fontSize="md"
+            shouldWrapChildren
+          >
+            <IconButton
+              aria-label="Align paragraph center"
+              icon={<TbAlignCenter />}
+              onClick={() =>
+                editor.chain().focus().setTextAlign('center').run()
+              }
+              isActive={editor.isActive({ textAlign: 'center' })}
+            />
+          </Tooltip>
+
+          <Tooltip
+            label="Align paragraph right"
+            fontSize="md"
+            shouldWrapChildren
+          >
+            <IconButton
+              aria-label="Align paragraph right"
+              icon={<TbAlignRight />}
+              onClick={() => editor.chain().focus().setTextAlign('right').run()}
+              isActive={editor.isActive({ textAlign: 'right' })}
+            />
+          </Tooltip>
+
+          <Tooltip
+            label="Align paragraph justify"
+            fontSize="md"
+            shouldWrapChildren
+          >
+            <IconButton
+              aria-label="Align paragraph justify"
+              icon={<TbAlignJustified />}
+              onClick={() =>
+                editor.chain().focus().setTextAlign('justify').run()
+              }
+              isActive={editor.isActive({ textAlign: 'justify' })}
+            />
+          </Tooltip>
+
+          <Tooltip label="Unalign paragraph" fontSize="md" shouldWrapChildren>
+            <IconButton
+              aria-label="Unalign paragraph"
+              icon={<TbAntennaBarsOff />}
+              onClick={() => editor.chain().focus().unsetTextAlign().run()}
+            />
+          </Tooltip>
+        </ButtonGroup>
+      </Flex>
+
       <EditorContent editor={editor} />
     </>
   )

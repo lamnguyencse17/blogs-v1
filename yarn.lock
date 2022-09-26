@@ -1230,7 +1230,7 @@
 
 "@tiptap/extension-heading@^2.0.0-beta.196":
   version "2.0.0-beta.196"
-  resolved "https://registry.npmjs.org/@tiptap/extension-heading/-/extension-heading-2.0.0-beta.196.tgz#d8dd96f04041259ebf84f1040025556cb000aa12"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-heading/-/extension-heading-2.0.0-beta.196.tgz#d8dd96f04041259ebf84f1040025556cb000aa12"
   integrity sha512-2Aa6L3Yu0OQLdCp00vV3Dn1kis1/nuYExFEZLHbe7X4Ra//WHazogFzkiB53+ShCoztHM7cIIn67Z8lrJFwvxg==
 
 "@tiptap/extension-history@^2.0.0-beta.196":
@@ -1285,6 +1285,11 @@
   version "2.0.0-beta.196"
   resolved "https://registry.npmjs.org/@tiptap/extension-strike/-/extension-strike-2.0.0-beta.196.tgz#d37b6db9d4dec422c156ea7cf460055242baa870"
   integrity sha512-9u1CjrqkBIOpDdRVae9RjOVtNdyGenUTy6vX2pqXiIbHtDTtJ1uxktm1a9mzZxpFPFhhJDgxf4tpo4WgzRgOoQ==
+
+"@tiptap/extension-text-align@^2.0.0-beta.197":
+  version "2.0.0-beta.197"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-text-align/-/extension-text-align-2.0.0-beta.197.tgz#60d611b6a189db03542a6831cb7b8977e6d005de"
+  integrity sha512-hK86m6ne0wDNy3/hCwWuYxFgQkfEOBaZslNtNolSanNcyQYjoTHNcP9o/0pUgKD8OOuF+534RBufdznlaXhuvw==
 
 "@tiptap/extension-text@^2.0.0-beta.196":
   version "2.0.0-beta.196"

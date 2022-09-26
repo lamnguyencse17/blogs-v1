@@ -4,6 +4,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import TiptapLink from '@tiptap/extension-link'
 import Bold from '@tiptap/extension-bold'
+import Heading from '@tiptap/extension-heading'
 import {
   Box,
   Button,
@@ -31,6 +32,7 @@ import EditorSection from '../../components/editor'
 import { useFormik } from 'formik'
 import { createBlogSchema } from '../../libs/handlers/blog/types'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
+import TextAlign from '@tiptap/extension-text-align'
 
 const initialContent: JSONContent = {
   type: 'doc',
@@ -56,6 +58,10 @@ const Editor: NextPage = () => {
 
   Image.configure({
     inline: true,
+  })
+
+  Heading.configure({
+    levels: [1, 2, 3],
   })
 
   const { user } = useContext(UserContext)
@@ -144,6 +150,11 @@ const Editor: NextPage = () => {
       BulletList,
       OrderedList,
       Code,
+      Heading,
+      TextAlign,
+      TextAlign.configure({
+        types: ['heading', 'paragraph', 'image'],
+      }),
     ],
     content: initialContent,
     onUpdate: ({ editor }) => {
