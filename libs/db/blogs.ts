@@ -40,7 +40,7 @@ export type SingleBlogPath = Awaited<
   Prisma.PromiseReturnType<typeof GetIdsForBlogPath>
 >
 
-export const GetBlogById = async (id: number) => {
+export const getBlogById = async (id: number) => {
   const blog = await prisma.blogs.findUnique({
     where: {
       id,
@@ -65,6 +65,33 @@ export const GetBlogById = async (id: number) => {
   return { ...blog, updatedAt: dayjs(blog.updatedAt).unix() }
 }
 
+export const canUserEditBlog = async (userId: number, blogId: number) => {
+  const blog = await prisma.blogs.findUnique({
+    where: {
+      id: blogId,
+    },
+    select: {
+      creatorId: true,
+    },
+  })
+  if (!blog) {
+    return false
+  }
+  return blog.creatorId === userId
+}
+
+export const editBlog = async (
+  blogId: number,
+  data: Prisma.blogsUpdateInput
+) => {
+  return prisma.blogs.update({
+    where: {
+      id: blogId,
+    },
+    data,
+  })
+}
+
 export type SingleFetchedBlog = Awaited<
-  Prisma.PromiseReturnType<typeof GetBlogById>
+  Prisma.PromiseReturnType<typeof getBlogById>
 >

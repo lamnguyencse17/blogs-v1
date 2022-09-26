@@ -2,7 +2,7 @@ import { GetStaticPaths, GetStaticProps, NextPage } from 'next'
 import Head from 'next/head'
 import { ParsedUrlQuery } from 'querystring'
 import {
-  GetBlogById,
+  getBlogById,
   GetIdsForBlogPath,
   SingleFetchedBlog,
 } from '../../libs/db/blogs'
@@ -37,7 +37,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = async (context) => {
   const { id } = context.params as SingleBlogContext
-  const blog = await GetBlogById(parseInt(id))
+  const blog = await getBlogById(parseInt(id))
   if (!blog) {
     return {
       props: {},

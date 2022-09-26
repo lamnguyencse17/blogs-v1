@@ -3,7 +3,7 @@ import { ParsedUrlQuery } from 'querystring'
 import * as jose from 'jose'
 import { JWT_SECRET } from '../../libs/configs'
 import { Claim } from '../../libs/auth'
-import { GetBlogById, SingleFetchedBlog } from '../../libs/db/blogs'
+import { getBlogById, SingleFetchedBlog } from '../../libs/db/blogs'
 import {
   Box,
   Button,
@@ -31,7 +31,10 @@ import { useRouter } from 'next/router'
 import { blogs } from '@prisma/client'
 import { useFormik } from 'formik'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
-import { createBlogSchema } from '../../libs/handlers/blog/types'
+import {
+  createBlogSchema,
+  editBlogSchema,
+} from '../../libs/handlers/blog/types'
 import { debounce } from 'lodash-es'
 import { useEditor } from '@tiptap/react'
 import Head from 'next/head'
@@ -62,7 +65,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     if (!userId) {
       throw new Error('User id not found')
     }
-    const blog = await GetBlogById(parseInt(blogId))
+    const blog = await getBlogById(parseInt(blogId))
     if (!blog) {
       return {
         props: {},
@@ -114,9 +117,10 @@ const EditBlog: NextPage<BlogProps> = ({ blog }) => {
     content: string
     creatorId: number | null
   }) => {
+    console.log('SUBMITTING')
     try {
-      const response = await fetch('/api/blogs', {
-        method: 'POST',
+      const response = await fetch(`/api/blogs/${blog.id}`, {
+        method: 'PUT',
         body: JSON.stringify({
           content,
           title,
@@ -138,9 +142,9 @@ const EditBlog: NextPage<BlogProps> = ({ blog }) => {
         })
         return
       }
-      const blog = (await response.json()) as blogs
+      const newBlog = (await response.json()) as blogs
       localStorage.removeItem('devrant-draft')
-      await router.push(`/blogs/${blog.id}`)
+      // await router.push(`/blogs/${newBlog.id}`)
     } catch (err) {
       console.log(err)
     }
@@ -156,10 +160,10 @@ const EditBlog: NextPage<BlogProps> = ({ blog }) => {
     setFieldValue,
   } = useFormik({
     initialValues: {
-      title: '',
-      subTitle: '',
+      title: blog.title,
+      subTitle: blog.subTitle,
       creatorId: user.id,
-      content: '',
+      content: blog.content,
     },
     onSubmit: handleSubmitBlog,
     validationSchema: toFormikValidationSchema(createBlogSchema),
