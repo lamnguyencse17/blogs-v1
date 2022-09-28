@@ -53,5 +53,5 @@ export default async function handler(
       path: '/',
     })
   )
-  return res.status(200).json({ ...hideUserData })
+  return res.status(200).json({ ...hideUserData(user) })
 }

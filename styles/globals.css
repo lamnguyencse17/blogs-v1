@@ -16,6 +16,16 @@ a {
   box-sizing: border-box;
 }
 
+#preview ul {
+  margin: revert;
+  padding: revert;
+}
+
+#preview ol {
+  margin: revert;
+  padding: revert;
+}
+
 .ProseMirror {
   border: 2px solid grey;
   border-radius: 4px;

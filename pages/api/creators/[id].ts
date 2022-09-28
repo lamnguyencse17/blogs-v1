@@ -4,7 +4,6 @@ import AuthenticateApi, {
 } from '../../../libs/middlewares/authenticate'
 
 const handler: AuthenticatedHandler = async (context) => {
-  console.log(context.req.query)
   if (context.req.method === 'PUT') {
     return creatorsPutRequestHandler(context)
   }

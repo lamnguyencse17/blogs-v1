@@ -6,15 +6,23 @@ import {
   Heading,
   HStack,
   Link as ChakraLink,
+  Spacer,
   Text,
   Tooltip,
 } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 
-type CardProps = IndexBlogs[0]
+type CardProps = IndexBlogs[0] & { isCreator: boolean }
 
-const Card = ({ id, title, subTitle, creator, updatedAt }: CardProps) => {
+const Card = ({
+  id,
+  title,
+  subTitle,
+  creator,
+  updatedAt,
+  isCreator,
+}: CardProps) => {
   const dateDifference = useMemo(() => {
     const diff = dayjs().diff(dayjs.unix(updatedAt), 'h')
     if (diff < 1) {
@@ -32,11 +40,20 @@ const Card = ({ id, title, subTitle, creator, updatedAt }: CardProps) => {
   return (
     <HStack>
       <Box p={5} shadow="md" borderWidth="1px" width="100%">
-        <Heading color="twitter.900" mb="1">
-          <Link href={`/blogs/${id}`} passHref>
-            <ChakraLink>{title}</ChakraLink>
-          </Link>
-        </Heading>
+        <Flex direction="row" alignItems="center">
+          <Heading color="twitter.900" mb="1">
+            <Link href={`/blogs/${id}`} passHref>
+              <ChakraLink>{title}</ChakraLink>
+            </Link>
+          </Heading>
+          <Spacer />
+          {isCreator && (
+            <Link href={`/editor/${id}`} passHref>
+              <ChakraLink>Edit</ChakraLink>
+            </Link>
+          )}
+        </Flex>
+
         <Flex mb="5" gap={1}>
           <Link href={`/creators/${creator.id}`} passHref>
             <ChakraLink color="twitter.600">{creator.name}</ChakraLink>

@@ -3,6 +3,8 @@ import Head from 'next/head'
 import Card from '../components/index/card'
 import { GetBlogsForIndex, IndexBlogs } from '../libs/db/blogs'
 import { Container, Flex } from '@chakra-ui/react'
+import { useContext } from 'react'
+import { UserContext } from './_app'
 
 export async function getStaticProps() {
   const blogs = await GetBlogsForIndex()
@@ -20,6 +22,7 @@ type HomeProps = {
 }
 
 const Home: NextPage<HomeProps> = ({ blogs }) => {
+  const { user } = useContext(UserContext)
   return (
     <div>
       <Head>
@@ -32,7 +35,11 @@ const Home: NextPage<HomeProps> = ({ blogs }) => {
         <Container maxW="container.lg">
           <Flex direction="column" gap="10">
             {blogs.map((blog) => (
-              <Card {...blog} key={blog.id} />
+              <Card
+                {...blog}
+                key={blog.id}
+                isCreator={user.id === blog.creator.id}
+              />
             ))}
           </Flex>
         </Container>
