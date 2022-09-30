@@ -20,10 +20,11 @@ import { getCreatorByIdForAuthenticated } from '../../../libs/db/users'
 import * as jose from 'jose'
 import { Claim } from '../../../libs/auth'
 import { JWT_SECRET } from '../../../libs/configs'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { vsDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import { useRouter } from 'next/router'
 import { blogs } from '@prisma/client'
+import HeadingRenderer from '../../../libs/markdown/headings'
+import CodeRenderer from '../../../libs/markdown/code'
+import LinkRenderer from '../../../libs/markdown/link'
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const token = context.req.cookies['Authorization']
@@ -150,23 +151,9 @@ const NewEditorPage: NextPage<NewEditorPageProps> = ({ creator }) => {
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
-                  code({ inline, className, children, ...props }) {
-                    const match = /language-(\w+)/.exec(className || '')
-                    return !inline && match ? (
-                      <SyntaxHighlighter
-                        language={match[1]}
-                        PreTag="div"
-                        {...props}
-                        style={vsDark}
-                      >
-                        {String(children).replace(/\n$/, '')}
-                      </SyntaxHighlighter>
-                    ) : (
-                      <code className={className} {...props}>
-                        {children}
-                      </code>
-                    )
-                  },
+                  ...HeadingRenderer,
+                  code: CodeRenderer,
+                  a: LinkRenderer,
                 }}
               >
                 {watch('content')}
