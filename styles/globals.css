@@ -26,6 +26,20 @@ a {
   padding: revert;
 }
 
+#preview blockquote {
+  border-left: 10px solid #ccc;
+  margin: 1.5em 10px !important;
+  padding: 0.4em 10px;
+}
+
+#preview blockquote p {
+  display: inline;
+}
+
+#preview h1 {
+  display: inline;
+}
+
 .ProseMirror {
   border: 2px solid grey;
   border-radius: 4px;

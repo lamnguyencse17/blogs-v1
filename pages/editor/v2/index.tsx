@@ -6,6 +6,7 @@ import {
   FormLabel,
   Input,
   Textarea,
+  useToast,
 } from '@chakra-ui/react'
 import { GetServerSideProps, NextPage } from 'next'
 import Head from 'next/head'
@@ -14,7 +15,6 @@ import { useForm } from 'react-hook-form'
 import { createBlogSchema } from '../../../libs/handlers/blog/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useEffect } from 'react'
 import remarkGfm from 'remark-gfm'
 import { getCreatorByIdForAuthenticated } from '../../../libs/db/users'
 import * as jose from 'jose'
@@ -22,6 +22,8 @@ import { Claim } from '../../../libs/auth'
 import { JWT_SECRET } from '../../../libs/configs'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vsDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import { useRouter } from 'next/router'
+import { blogs } from '@prisma/client'
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const token = context.req.cookies['Authorization']
@@ -65,19 +67,56 @@ type NewEditorPageProps = {
 }
 
 const NewEditorPage: NextPage<NewEditorPageProps> = ({ creator }) => {
+  const toast = useToast()
+  const router = useRouter()
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
-    setValue,
   } = useForm<z.infer<typeof createBlogSchema>>({
     resolver: zodResolver(createBlogSchema),
+    defaultValues: {
+      creatorId: creator.id,
+    },
   })
-  const onSubmit = (data: any) => console.log(data)
-  useEffect(() => {
-    setValue('creatorId', creator.id)
-  }, [])
+  const onSubmit = async ({
+    content,
+    title,
+    subTitle,
+    creatorId,
+  }: z.infer<typeof createBlogSchema>) => {
+    try {
+      const response = await fetch('/api/blogs', {
+        method: 'POST',
+        body: JSON.stringify({
+          content,
+          title,
+          subTitle,
+          creatorId,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          accept: 'application/json',
+        },
+      })
+      if (!response.ok) {
+        const { message } = await response.json()
+        toast({
+          title: message,
+          duration: 5000,
+          isClosable: true,
+          status: 'error',
+        })
+        return
+      }
+      const blog = (await response.json()) as blogs
+      localStorage.removeItem('devrant-draft')
+      await router.push(`/blogs/${blog.id}`)
+    } catch (err) {
+      console.log(err)
+    }
+  }
   return (
     <Container maxW="container.lg">
       <Head>
@@ -115,12 +154,13 @@ const NewEditorPage: NextPage<NewEditorPageProps> = ({ creator }) => {
                     const match = /language-(\w+)/.exec(className || '')
                     return !inline && match ? (
                       <SyntaxHighlighter
-                        children={String(children).replace(/\n$/, '')}
                         language={match[1]}
                         PreTag="div"
                         {...props}
                         style={vsDark}
-                      />
+                      >
+                        {String(children).replace(/\n$/, '')}
+                      </SyntaxHighlighter>
                     ) : (
                       <code className={className} {...props}>
                         {children}
