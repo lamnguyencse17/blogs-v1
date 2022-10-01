@@ -1,6 +1,8 @@
 import {
   Box,
+  Button,
   Container,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -25,6 +27,8 @@ import { blogs } from '@prisma/client'
 import HeadingRenderer from '../../../libs/markdown/headings'
 import CodeRenderer from '../../../libs/markdown/code'
 import LinkRenderer from '../../../libs/markdown/link'
+import StrongRenderer from '../../../libs/markdown/strong'
+import ImageRenderer from '../../../libs/markdown/image'
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const token = context.req.cookies['Authorization']
@@ -73,7 +77,7 @@ const NewEditorPage: NextPage<NewEditorPageProps> = ({ creator }) => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     watch,
   } = useForm<z.infer<typeof createBlogSchema>>({
     resolver: zodResolver(createBlogSchema),
@@ -147,6 +151,11 @@ const NewEditorPage: NextPage<NewEditorPageProps> = ({ creator }) => {
             </FormErrorMessage>
             <FormLabel htmlFor="content">Content</FormLabel>
             <Textarea id="content" {...register('content')} height="300px" />
+            <Flex alignItems="center" justifyContent="center" mt="5">
+              <Button isLoading={isSubmitting} type="submit">
+                Submit
+              </Button>
+            </Flex>
             <Box id="preview">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
@@ -154,6 +163,8 @@ const NewEditorPage: NextPage<NewEditorPageProps> = ({ creator }) => {
                   ...HeadingRenderer,
                   code: CodeRenderer,
                   a: LinkRenderer,
+                  strong: StrongRenderer,
+                  img: ImageRenderer,
                 }}
               >
                 {watch('content')}

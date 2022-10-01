@@ -18,6 +18,7 @@ const GenericHeading: HeadingComponent = (props) => {
     <Heading
       size={tagSizeMap[props.node.tagName as keyof typeof tagSizeMap]}
       marginY={tagMarginMap[props.node.tagName as keyof typeof tagMarginMap]}
+      color="twitter.900"
     >
       {props.children}
     </Heading>
