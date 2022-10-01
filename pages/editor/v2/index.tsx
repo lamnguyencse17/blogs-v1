@@ -29,6 +29,7 @@ import CodeRenderer from '../../../libs/markdown/code'
 import LinkRenderer from '../../../libs/markdown/link'
 import StrongRenderer from '../../../libs/markdown/strong'
 import ImageRenderer from '../../../libs/markdown/image'
+import ParagraphRenderer from '../../../libs/markdown/paragraph'
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const token = context.req.cookies['Authorization']
@@ -165,6 +166,7 @@ const NewEditorPage: NextPage<NewEditorPageProps> = ({ creator }) => {
                   a: LinkRenderer,
                   strong: StrongRenderer,
                   img: ImageRenderer,
+                  p: ParagraphRenderer,
                 }}
               >
                 {watch('content')}

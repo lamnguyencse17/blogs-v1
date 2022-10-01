@@ -25,6 +25,7 @@ import CodeRenderer from '../../../libs/markdown/code'
 import LinkRenderer from '../../../libs/markdown/link'
 import StrongRenderer from '../../../libs/markdown/strong'
 import ImageRenderer from '../../../libs/markdown/image'
+import ParagraphRenderer from '../../../libs/markdown/paragraph'
 
 interface SingleBlogContext extends ParsedUrlQuery {
   id: string
@@ -93,16 +94,7 @@ const BlogsV2: NextPage<BlogProps> = ({ blog }) => {
                   a: LinkRenderer,
                   strong: StrongRenderer,
                   img: ImageRenderer,
-                  p: (paragraph) => {
-                    const { node } = paragraph
-                    const child = node.children[0] as unknown as Element
-                    if (child.tagName === 'img') {
-                      console.log(paragraph.children)
-                      const props = child.props as JSX.IntrinsicAttributes['im']
-                      return ImageRenderer(paragraph.children)
-                    }
-                    return <p>{paragraph.children}</p>
-                  },
+                  p: ParagraphRenderer,
                 }}
               >
                 {blog.content}
