@@ -6,11 +6,7 @@ import {
   GetIdsForBlogPath,
   SingleFetchedBlog,
 } from '../../libs/db/blogs'
-import { generateHTML } from '@tiptap/html'
-import StarterKit from '@tiptap/starter-kit'
 import Link from 'next/link'
-import TiptapLink from '@tiptap/extension-link'
-import Image from '@tiptap/extension-image'
 import dayjs from 'dayjs'
 import {
   Container,
@@ -22,6 +18,14 @@ import {
   Heading,
   Box,
 } from '@chakra-ui/react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import HeadingRenderer from '../../libs/markdown/headings'
+import CodeRenderer from '../../libs/markdown/code'
+import LinkRenderer from '../../libs/markdown/link'
+import StrongRenderer from '../../libs/markdown/strong'
+import ImageRenderer from '../../libs/markdown/image'
+import ParagraphRenderer from '../../libs/markdown/paragraph'
 
 interface SingleBlogContext extends ParsedUrlQuery {
   id: string
@@ -56,7 +60,7 @@ type BlogProps = {
   blog: NonNullable<SingleFetchedBlog>
 }
 
-const Blogs: NextPage<BlogProps> = ({ blog }) => {
+const BlogsV2: NextPage<BlogProps> = ({ blog }) => {
   return (
     <div>
       <Head>
@@ -81,18 +85,21 @@ const Blogs: NextPage<BlogProps> = ({ blog }) => {
             <Text fontSize="2xl" fontWeight="semibold" color="gray.500">
               {blog.subTitle}
             </Text>
-            <Box
-              pt="5"
-              pb="5"
-              dangerouslySetInnerHTML={{
-                __html: generateHTML(JSON.parse(blog.content), [
-                  StarterKit,
-                  TiptapLink,
-                  Image,
-                ]),
-              }}
-              className="content"
-            />
+            <Box pt="5" pb="5">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  ...HeadingRenderer,
+                  code: CodeRenderer,
+                  a: LinkRenderer,
+                  strong: StrongRenderer,
+                  img: ImageRenderer,
+                  p: ParagraphRenderer,
+                }}
+              >
+                {blog.content}
+              </ReactMarkdown>
+            </Box>
           </Stack>
         </Container>
       </main>
@@ -100,4 +107,4 @@ const Blogs: NextPage<BlogProps> = ({ blog }) => {
   )
 }
 
-export default Blogs
+export default BlogsV2
