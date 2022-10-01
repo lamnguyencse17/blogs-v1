@@ -7,7 +7,7 @@ import { getBlogById, SingleFetchedBlog } from '../../libs/db/blogs'
 import {
   Box,
   Button,
-  CircularProgress,
+  // CircularProgress,
   Container,
   Divider,
   Flex,
@@ -17,27 +17,19 @@ import {
   Input,
   useToast,
 } from '@chakra-ui/react'
-import StarterKit from '@tiptap/starter-kit'
-import Image from '@tiptap/extension-image'
-import TiptapLink from '@tiptap/extension-link'
-import Bold from '@tiptap/extension-bold'
-import BulletList from '@tiptap/extension-bullet-list'
-import OrderedList from '@tiptap/extension-ordered-list'
-import Code from '@tiptap/extension-code'
-import Heading from '@tiptap/extension-heading'
-import { Editor as TypeEditor, JSONContent } from '@tiptap/core'
-import { useContext, useEffect } from 'react'
+import {
+  useContext,
+  // useEffect
+} from 'react'
 import { UserContext } from '../_app'
 import { useRouter } from 'next/router'
 import { blogs } from '@prisma/client'
 import { useFormik } from 'formik'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
 import { createBlogSchema } from '../../libs/handlers/blog/types'
-import { debounce } from 'lodash-es'
-import { useEditor } from '@tiptap/react'
+// import { debounce } from 'lodash-es'
 import Head from 'next/head'
-import EditorSection from '../../components/editor'
-import TextAlign from '@tiptap/extension-text-align'
+// import EditorSection from '../../components/editor'
 
 interface EditBlogParams extends ParsedUrlQuery {
   id: string
@@ -92,20 +84,6 @@ type BlogProps = {
 }
 
 const EditBlog: NextPage<BlogProps> = ({ blog }) => {
-  TiptapLink.configure({
-    autolink: true,
-    openOnClick: true,
-    linkOnPaste: true,
-  })
-
-  Image.configure({
-    inline: true,
-  })
-
-  Heading.configure({
-    levels: [1, 2, 3],
-  })
-
   const { user } = useContext(UserContext)
   const router = useRouter()
   const toast = useToast()
@@ -159,7 +137,7 @@ const EditBlog: NextPage<BlogProps> = ({ blog }) => {
     touched,
     handleChange,
     isSubmitting,
-    setFieldValue,
+    // setFieldValue,
   } = useFormik({
     initialValues: {
       title: blog.title,
@@ -173,59 +151,55 @@ const EditBlog: NextPage<BlogProps> = ({ blog }) => {
     validateOnChange: false,
   })
 
-  const updateContent = (newContent: JSONContent) => {
-    setFieldValue('content', JSON.stringify(newContent))
-  }
+  // const storeContent = debounce((editor: TypeEditor) => {
+  //   const newContent = editor.getJSON()
+  //   updateContent(newContent)
+  //   localStorage.setItem(
+  //     `devrant-edit-draft-${blog.id}`,
+  //     JSON.stringify(newContent)
+  //   )
+  // }, 1000)
 
-  const storeContent = debounce((editor: TypeEditor) => {
-    const newContent = editor.getJSON()
-    updateContent(newContent)
-    localStorage.setItem(
-      `devrant-edit-draft-${blog.id}`,
-      JSON.stringify(newContent)
-    )
-  }, 1000)
-
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Bold,
-      TiptapLink,
-      Image,
-      BulletList,
-      OrderedList,
-      Code,
-      Heading,
-      TextAlign.configure({
-        types: ['heading', 'paragraph', 'image'],
-      }),
-    ],
-    content: JSON.parse(blog.content),
-    onUpdate: ({ editor }) => {
-      storeContent(editor)
-    },
-    onCreate: ({ editor }) => {
-      const draftContent = localStorage.getItem(`devrant-edit-draft-${blog.id}`)
-      if (draftContent) {
-        const keepDraft = confirm('do you want to continue with the draft?')
-        if (!keepDraft) {
-          localStorage.removeItem(`devrant-edit-draft-${blog.id}`)
-          return
-        }
-        const parsedContent = JSON.parse(draftContent)
-        editor.commands.setContent(parsedContent)
-        setFieldValue('content', draftContent)
-      }
-    },
-  })
-  useEffect(() => {
-    if (user.id !== null) {
-      setFieldValue('creatorId', user.id)
-    }
-  }, [user, setFieldValue])
-  if (!editor) {
-    return <CircularProgress isIndeterminate color="twitter.900" />
-  }
+  // const editor = useEditor({
+  //   extensions: [
+  //     StarterKit,
+  //     Bold,
+  //     TiptapLink,
+  //     Image,
+  //     BulletList,
+  //     OrderedList,
+  //     Code,
+  //     Heading,
+  //     TextAlign.configure({
+  //       types: ['heading', 'paragraph', 'image'],
+  //     }),
+  //   ],
+  //   content: JSON.parse(blog.content),
+  //   onUpdate: ({ editor }) => {
+  //     storeContent(editor)
+  //   },
+  //   onCreate: ({ editor }) => {
+  //     const draftContent = localStorage.getItem(`devrant-edit-draft-${blog.id}`)
+  //     if (draftContent) {
+  //       const keepDraft = confirm('do you want to continue with the draft?')
+  //       if (!keepDraft) {
+  //         localStorage.removeItem(`devrant-edit-draft-${blog.id}`)
+  //         return
+  //       }
+  //       const parsedContent = JSON.parse(draftContent)
+  //       editor.commands.setContent(parsedContent)
+  //       setFieldValue('content', draftContent)
+  //     }
+  //   },
+  // })
+  // useEffect(() => {
+  //   if (user.id !== null) {
+  //     setFieldValue('creatorId', user.id)
+  //   }
+  // }, [user, setFieldValue])
+  // if (!editor) {
+  //   return <CircularProgress isIndeterminate color="twitter.900" />
+  // }
 
   return (
     <Container maxW="container.lg">
@@ -276,7 +250,7 @@ const EditBlog: NextPage<BlogProps> = ({ blog }) => {
               </FormErrorMessage>
             </Box>
             <Divider />
-            <EditorSection editor={editor} />
+            {/* <EditorSection editor={editor} /> */}
             <Flex alignItems="center" justifyContent="center" mt="5">
               <Button isLoading={isSubmitting} type="submit">
                 Submit
