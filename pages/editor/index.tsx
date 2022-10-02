@@ -30,6 +30,10 @@ import LinkRenderer from '../../libs/markdown/link'
 import StrongRenderer from '../../libs/markdown/strong'
 import ImageRenderer from '../../libs/markdown/image'
 import ParagraphRenderer from '../../libs/markdown/paragraph'
+import { useEffect } from 'react'
+import { debounce } from 'lodash-es'
+
+const LOCAL_STORAGE_DRAFT_KEY = 'editor-draft'
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const token = context.req.cookies['Authorization']
@@ -72,9 +76,20 @@ type NewEditorPageProps = {
   >
 }
 
+const saveDraft = debounce(
+  (content: string, title: string, subTitle: string) => {
+    localStorage.setItem(
+      LOCAL_STORAGE_DRAFT_KEY,
+      JSON.stringify({ title, subTitle, content })
+    )
+  },
+  500
+)
+
 const NewEditorPage: NextPage<NewEditorPageProps> = ({ creator }) => {
   const toast = useToast()
   const router = useRouter()
+
   const {
     register,
     handleSubmit,
@@ -86,6 +101,15 @@ const NewEditorPage: NextPage<NewEditorPageProps> = ({ creator }) => {
       creatorId: creator.id,
     },
   })
+
+  const currentContent = watch('content')
+  const currentTitle = watch('title')
+  const currentSubTitle = watch('subTitle')
+
+  useEffect(() => {
+    saveDraft(currentContent, currentTitle, currentSubTitle)
+  }, [currentContent, currentTitle, currentSubTitle])
+
   const onSubmit = async ({
     content,
     title,
@@ -169,7 +193,7 @@ const NewEditorPage: NextPage<NewEditorPageProps> = ({ creator }) => {
                   p: ParagraphRenderer,
                 }}
               >
-                {watch('content')}
+                {currentContent}
               </ReactMarkdown>{' '}
             </Box>
           </FormControl>
