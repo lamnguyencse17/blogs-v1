@@ -30,8 +30,9 @@ import LinkRenderer from '../../libs/markdown/link'
 import StrongRenderer from '../../libs/markdown/strong'
 import ImageRenderer from '../../libs/markdown/image'
 import ParagraphRenderer from '../../libs/markdown/paragraph'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { debounce } from 'lodash-es'
+import DraftDialog from '../../components/editor/draftDialog'
 
 const LOCAL_STORAGE_DRAFT_KEY = 'editor-draft'
 
@@ -78,6 +79,9 @@ type NewEditorPageProps = {
 
 const saveDraft = debounce(
   (content: string, title: string, subTitle: string) => {
+    if (!title && !subTitle && !content) {
+      return
+    }
     localStorage.setItem(
       LOCAL_STORAGE_DRAFT_KEY,
       JSON.stringify({ title, subTitle, content })
@@ -86,14 +90,25 @@ const saveDraft = debounce(
   500
 )
 
+const getDraftData = () => {
+  const draftData = localStorage.getItem(LOCAL_STORAGE_DRAFT_KEY)
+  console.log(draftData)
+  if (!draftData) {
+    return {}
+  }
+  return JSON.parse(draftData)
+}
+
 const NewEditorPage: NextPage<NewEditorPageProps> = ({ creator }) => {
   const toast = useToast()
   const router = useRouter()
+  const [showDraftDialog, setShowDraftDialog] = useState(false)
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setValue,
     watch,
   } = useForm<z.infer<typeof createBlogSchema>>({
     resolver: zodResolver(createBlogSchema),
@@ -107,8 +122,29 @@ const NewEditorPage: NextPage<NewEditorPageProps> = ({ creator }) => {
   const currentSubTitle = watch('subTitle')
 
   useEffect(() => {
-    saveDraft(currentContent, currentTitle, currentSubTitle)
-  }, [currentContent, currentTitle, currentSubTitle])
+    if (!showDraftDialog) {
+      saveDraft(currentContent, currentTitle, currentSubTitle)
+    }
+  }, [currentContent, currentTitle, currentSubTitle, showDraftDialog])
+
+  useEffect(() => {
+    if (localStorage.getItem(LOCAL_STORAGE_DRAFT_KEY)) {
+      setShowDraftDialog(true)
+    }
+  }, [])
+
+  const handleRestoreDraft = () => {
+    const draftData = getDraftData()
+    Object.keys(draftData).forEach((key) => {
+      setValue(key as keyof z.infer<typeof createBlogSchema>, draftData[key])
+    })
+    handleCloseDraftDialog()
+  }
+
+  const handleCloseDraftDialog = () => {
+    localStorage.removeItem(LOCAL_STORAGE_DRAFT_KEY)
+    setShowDraftDialog(false)
+  }
 
   const onSubmit = async ({
     content,
@@ -198,6 +234,11 @@ const NewEditorPage: NextPage<NewEditorPageProps> = ({ creator }) => {
             </Box>
           </FormControl>
         </form>
+        <DraftDialog
+          isOpen={showDraftDialog}
+          onClose={handleCloseDraftDialog}
+          onRestore={handleRestoreDraft}
+        />
       </main>
     </Container>
   )
