@@ -29,7 +29,7 @@ type EditorFormProps = {
   isSubmitting: boolean
   isOpen: boolean
   register: UseFormRegister<CreateBlogInputType>
-  handleSubmit: (e: FormEvent) => any
+  handleSubmit: (e: FormEvent) => unknown
   onClose: () => void
   onRestore: () => void
 }

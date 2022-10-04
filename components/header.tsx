@@ -45,9 +45,13 @@ const Header = () => {
               <ChakraLink color="twitter.900">Home</ChakraLink>
             </Link>
             <Spacer />
-            <Link href="/about" passHref>
-              <ChakraLink color="twitter.900">About</ChakraLink>
-            </Link>
+            <ChakraLink
+              color="twitter.900"
+              href="https://www.lamnguyencse17.dev"
+              isExternal
+            >
+              About
+            </ChakraLink>
             {user.isLoading && (
               <>
                 <Spacer />
@@ -104,9 +108,9 @@ const Header = () => {
               <Link href="/" passHref>
                 <MenuItem as="a">Home</MenuItem>
               </Link>
-              <Link href="/about" passHref>
+              <ChakraLink href="https://www.lamnguyencse17.dev" isExternal>
                 <MenuItem as="a">About</MenuItem>
-              </Link>
+              </ChakraLink>
               {!user.isLoading && user.id === null && (
                 <Link href="/login" passHref>
                   <MenuItem as="a">Sign in</MenuItem>
