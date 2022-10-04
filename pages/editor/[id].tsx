@@ -1,35 +1,17 @@
+import { useToast } from '@chakra-ui/react'
 import { GetServerSideProps, NextPage } from 'next'
-import { ParsedUrlQuery } from 'querystring'
-import * as jose from 'jose'
-import { JWT_SECRET } from '../../libs/configs'
-import { Claim } from '../../libs/auth'
-import { getBlogById, SingleFetchedBlog } from '../../libs/db/blogs'
-import {
-  Box,
-  Button,
-  // CircularProgress,
-  Container,
-  Divider,
-  Flex,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  Input,
-  useToast,
-} from '@chakra-ui/react'
-import {
-  useContext,
-  // useEffect
-} from 'react'
-import { UserContext } from '../_app'
+import { CreateBlogInputType } from '../../libs/handlers/blog/types'
+import { getCreatorByIdForAuthenticated } from '../../libs/db/users'
+import { verifyToken } from '../../libs/auth'
 import { useRouter } from 'next/router'
 import { blogs } from '@prisma/client'
-import { useFormik } from 'formik'
-import { toFormikValidationSchema } from 'zod-formik-adapter'
-import { createBlogSchema } from '../../libs/handlers/blog/types'
-// import { debounce } from 'lodash-es'
-import Head from 'next/head'
-// import EditorSection from '../../components/editor'
+import { getBlogById, SingleFetchedBlog } from '../../libs/db/blogs'
+import { ParsedUrlQuery } from 'querystring'
+import { getDraftData } from '../../libs/editor/draft'
+import EditorForm from '../../components/editor/editorForm'
+import { useDraft, useEditorForm } from '../../libs/editor/hooks'
+import { FormEvent } from 'react'
+import { requestToEditBlog } from '../../libs/requests/blogs'
 
 interface EditBlogParams extends ParsedUrlQuery {
   id: string
@@ -48,14 +30,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
   }
   try {
-    const decoded = await jose.jwtVerify(
-      token,
-      new TextEncoder().encode(JWT_SECRET)
-    )
-    const { id: userId } = decoded.payload as Claim
-    if (!userId) {
-      throw new Error('User id not found')
-    }
+    const { id: userId } = await verifyToken(token)
     const blog = await getBlogById(parseInt(blogId))
     if (!blog) {
       return {
@@ -65,8 +40,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         },
       }
     }
+    const creator = await getCreatorByIdForAuthenticated(userId)
+
     return {
-      props: { blog },
+      props: { blog, creator },
     }
   } catch (err) {
     return {
@@ -79,38 +56,68 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 }
 
-type BlogProps = {
+type NewEditorPageProps = {
+  creator: NonNullable<
+    Awaited<ReturnType<typeof getCreatorByIdForAuthenticated>>
+  >
   blog: NonNullable<SingleFetchedBlog>
 }
 
-const EditBlog: NextPage<BlogProps> = ({ blog }) => {
-  const { user } = useContext(UserContext)
-  const router = useRouter()
+const NewEditorPage: NextPage<NewEditorPageProps> = ({ creator, blog }) => {
+  const BLOG_DRAFT_KEY = `devrant-edit-draft-${blog.id}`
   const toast = useToast()
-  const handleSubmitBlog = async ({
+  const router = useRouter()
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setValue,
+    watch,
+  } = useEditorForm({
+    creatorId: creator.id,
+    content: blog.content,
+    title: blog.title,
+    subTitle: blog.subTitle,
+  })
+
+  const { showDraftDialog, setShowDraftDialog } = useDraft(
+    BLOG_DRAFT_KEY,
+    watch
+  )
+
+  const handleRestoreDraft = () => {
+    const draftData = getDraftData<CreateBlogInputType>(BLOG_DRAFT_KEY)
+    if (!draftData) {
+      handleCloseDraftDialog()
+      return
+    }
+    Object.keys(draftData).forEach((key) => {
+      setValue(
+        key as keyof typeof draftData,
+        draftData[key as keyof typeof draftData]
+      )
+    })
+    handleCloseDraftDialog()
+  }
+
+  const handleCloseDraftDialog = () => {
+    localStorage.removeItem(BLOG_DRAFT_KEY)
+    setShowDraftDialog(false)
+  }
+
+  const onSubmit = async ({
+    content,
     title,
     subTitle,
-    content,
     creatorId,
-  }: {
-    title: string
-    subTitle: string
-    content: string
-    creatorId: number | null
-  }) => {
+  }: CreateBlogInputType) => {
     try {
-      const response = await fetch(`/api/blogs/${blog.id}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          content,
-          title,
-          subTitle,
-          creatorId,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-          accept: 'application/json',
-        },
+      const response = await requestToEditBlog(blog.id, {
+        content,
+        title,
+        subTitle,
+        creatorId,
       })
       if (!response.ok) {
         const { message } = await response.json()
@@ -123,144 +130,30 @@ const EditBlog: NextPage<BlogProps> = ({ blog }) => {
         return
       }
       const newBlog = (await response.json()) as blogs
-      localStorage.removeItem('devrant-draft')
+      localStorage.removeItem(BLOG_DRAFT_KEY)
       await router.push(`/blogs/${newBlog.id}`)
     } catch (err) {
       console.log(err)
     }
   }
-  const {
-    handleSubmit,
-    handleBlur,
-    values,
-    errors,
-    touched,
-    handleChange,
-    isSubmitting,
-    // setFieldValue,
-  } = useFormik({
-    initialValues: {
-      title: blog.title,
-      subTitle: blog.subTitle,
-      creatorId: user.id,
-      content: blog.content,
-    },
-    onSubmit: handleSubmitBlog,
-    validationSchema: toFormikValidationSchema(createBlogSchema),
-    validateOnBlur: true,
-    validateOnChange: false,
-  })
 
-  // const storeContent = debounce((editor: TypeEditor) => {
-  //   const newContent = editor.getJSON()
-  //   updateContent(newContent)
-  //   localStorage.setItem(
-  //     `devrant-edit-draft-${blog.id}`,
-  //     JSON.stringify(newContent)
-  //   )
-  // }, 1000)
-
-  // const editor = useEditor({
-  //   extensions: [
-  //     StarterKit,
-  //     Bold,
-  //     TiptapLink,
-  //     Image,
-  //     BulletList,
-  //     OrderedList,
-  //     Code,
-  //     Heading,
-  //     TextAlign.configure({
-  //       types: ['heading', 'paragraph', 'image'],
-  //     }),
-  //   ],
-  //   content: JSON.parse(blog.content),
-  //   onUpdate: ({ editor }) => {
-  //     storeContent(editor)
-  //   },
-  //   onCreate: ({ editor }) => {
-  //     const draftContent = localStorage.getItem(`devrant-edit-draft-${blog.id}`)
-  //     if (draftContent) {
-  //       const keepDraft = confirm('do you want to continue with the draft?')
-  //       if (!keepDraft) {
-  //         localStorage.removeItem(`devrant-edit-draft-${blog.id}`)
-  //         return
-  //       }
-  //       const parsedContent = JSON.parse(draftContent)
-  //       editor.commands.setContent(parsedContent)
-  //       setFieldValue('content', draftContent)
-  //     }
-  //   },
-  // })
-  // useEffect(() => {
-  //   if (user.id !== null) {
-  //     setFieldValue('creatorId', user.id)
-  //   }
-  // }, [user, setFieldValue])
-  // if (!editor) {
-  //   return <CircularProgress isIndeterminate color="twitter.900" />
-  // }
+  const handleSubmitForm = (e: FormEvent) => {
+    handleSubmit(onSubmit)()
+    e.preventDefault()
+  }
 
   return (
-    <Container maxW="container.lg">
-      <Head>
-        <title>DEV&apos;S RANT BLOGS EDITOR</title>
-        <meta name="description" content="dev's rant blogs editor" />
-        <link rel="icon" href="/favicon.svg" />
-      </Head>
-      <main>
-        <form onSubmit={handleSubmit}>
-          <FormControl isInvalid={!!errors.title || !!errors.subTitle}>
-            <Box mb="6">
-              <FormLabel htmlFor="title">Title</FormLabel>
-              <Input
-                id="title"
-                type="text"
-                placeholder="Title"
-                name="title"
-                required={true}
-                value={values.title}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={!!errors.title && !!touched.title}
-                errorBorderColor="red.300"
-                color="twitter.900"
-              />
-              <FormErrorMessage>
-                {touched.title && errors.title}
-              </FormErrorMessage>
-            </Box>
-            <Box mb="6">
-              <FormLabel htmlFor="subTitle">Subtitle</FormLabel>
-              <Input
-                id="subTitle"
-                type="text"
-                placeholder="Subtitle"
-                name="subTitle"
-                required={true}
-                value={values.subTitle}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={!!errors.subTitle && !!touched.subTitle}
-                errorBorderColor="red.300"
-                color="twitter.900"
-              />
-              <FormErrorMessage>
-                {touched.subTitle && errors.subTitle}
-              </FormErrorMessage>
-            </Box>
-            <Divider />
-            {/* <EditorSection editor={editor} /> */}
-            <Flex alignItems="center" justifyContent="center" mt="5">
-              <Button isLoading={isSubmitting} type="submit">
-                Submit
-              </Button>
-            </Flex>
-          </FormControl>
-        </form>
-      </main>
-    </Container>
+    <EditorForm
+      errors={errors}
+      watch={watch}
+      isSubmitting={isSubmitting}
+      isOpen={showDraftDialog}
+      register={register}
+      handleSubmit={handleSubmitForm}
+      onClose={handleCloseDraftDialog}
+      onRestore={handleRestoreDraft}
+    />
   )
 }
 
-export default EditBlog
+export default NewEditorPage

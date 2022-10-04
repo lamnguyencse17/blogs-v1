@@ -1,9 +1,7 @@
 import { users } from '@prisma/client'
-import { JWTPayload } from 'jose'
-// import { JwtPayload } from 'jsonwebtoken'
+import * as jose from 'jose'
 import { z } from 'zod'
-
-export const verifyToken = () => {}
+import { JWT_SECRET } from '../configs'
 
 export type UserClaim = {
   id: number
@@ -11,7 +9,7 @@ export type UserClaim = {
   email: string
 }
 
-export type Claim = UserClaim & JWTPayload
+export type Claim = UserClaim & jose.JWTPayload
 
 export const loginSchema = z.object({
   email: z.string().email(),
@@ -70,3 +68,15 @@ export const hideUserData = (user: users) => {
 export type HiddenUserData = ReturnType<typeof hideUserData>
 export type LoginSchemaType = z.infer<typeof loginSchema>
 export type RegisterSchemaType = z.infer<typeof registerSchema>
+
+export const verifyToken = async (token: string) => {
+  const decoded = await jose.jwtVerify(
+    token,
+    new TextEncoder().encode(JWT_SECRET)
+  )
+  const { id } = decoded.payload as Claim
+  if (!id) {
+    throw new Error('User id not found')
+  }
+  return decoded.payload as Claim
+}

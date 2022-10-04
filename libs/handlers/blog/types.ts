@@ -7,6 +7,8 @@ export const createBlogSchema = z.object({
   content: z.string(),
 })
 
+export type CreateBlogInputType = z.infer<typeof createBlogSchema>
+
 export const editBlogSchema = z.object({
   creatorId: z.preprocess((val) => Number(val), z.number()),
   title: z.string().trim().min(8),
