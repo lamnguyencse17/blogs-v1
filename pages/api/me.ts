@@ -1,15 +1,18 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import jwt from 'jsonwebtoken'
 import { JWT_SECRET } from '../../libs/configs'
-import { Claim, UserClaim } from '../../libs/auth'
+import { verifyToken } from '../../libs/auth'
+import {
+  getCreatorByIdForAuthenticated,
+  SingleFetchedCreatorForAuthenticated,
+} from '../../libs/db/users'
 
 type Data =
   | {
       message?: string
     }
-  | UserClaim
+  | SingleFetchedCreatorForAuthenticated
 
-export default function handler(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
@@ -21,12 +24,10 @@ export default function handler(
     console.error('JWT_SECRET is not defined')
     return res.status(500).json({ message: 'Something went wrong' })
   }
-  // console.log(
-  //   jwt.sign(
-  //     { id: '62e9186315731c1edf36ee8d', name: 'Lam Nguyen', email: 'a' },
-  //     JWT_SECRET
-  //   )
-  // )
-  const { id, name, email } = jwt.verify(token, JWT_SECRET) as Claim
-  return res.status(200).json({ id, name, email })
+  const { id } = await verifyToken(token)
+  const user = await getCreatorByIdForAuthenticated(id)
+  if (!user) {
+    return res.status(401).json({ message: 'Unauthenticated' })
+  }
+  return res.status(200).json({ ...user })
 }

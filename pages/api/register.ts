@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import jwt from 'jsonwebtoken'
+import * as jose from 'jose'
 import { IS_PRODUCTION, JWT_SECRET } from '../../libs/configs'
 import { HiddenUserData, hideUserData, registerSchema } from '../../libs/auth'
 import { createUser, findUserByEmail } from '../../libs/db/users'
@@ -34,13 +34,15 @@ export default async function handler(
     avatar: 'https://ui-avatars.com/api/?name=' + name.replace(/ /g, '+'),
   })
 
-  const token = jwt.sign(
-    { id: newUser.id, email: newUser.email, name: newUser.name },
-    JWT_SECRET,
-    {
-      expiresIn: '1d',
-    }
-  )
+  const token = await new jose.SignJWT({
+    id: newUser.id,
+    email: newUser.email,
+    name: newUser.name,
+  })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('24h')
+    .sign(new TextEncoder().encode(JWT_SECRET))
   res.setHeader(
     'set-cookie',
     cookie.serialize('Authorization', token, {

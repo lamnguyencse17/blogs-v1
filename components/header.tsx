@@ -78,10 +78,13 @@ const Header = () => {
                   Actions
                 </MenuButton>
                 <MenuList color="twitter.900">
+                  <Link href={`/creators/${user.id}`} passHref>
+                    <MenuItem as="a">{user.name}</MenuItem>
+                  </Link>
                   <Link href="/editor" passHref>
                     <MenuItem as="a">Create a new blog</MenuItem>
                   </Link>
-                  <Link href="/creators/profile" passHref>
+                  <Link href="/creators/account" passHref>
                     <MenuItem as="a">Your profile</MenuItem>
                   </Link>
                   <MenuDivider />
@@ -118,11 +121,14 @@ const Header = () => {
               )}
               {!user.isLoading && user.id !== null && (
                 <>
+                  <Link href={`/creators/${user.id}`} passHref>
+                    <MenuItem as="a">{user.name}</MenuItem>
+                  </Link>
                   <Link href="/editor" passHref>
                     <MenuItem as="a">Create a new blog</MenuItem>
                   </Link>
-                  <Link href="/creators/profile" passHref>
-                    <MenuItem as="a">Your profile</MenuItem>
+                  <Link href="/creators/account" passHref>
+                    <MenuItem as="a">Your Account</MenuItem>
                   </Link>
                   <MenuDivider />
                   <Link href="/logout" passHref>

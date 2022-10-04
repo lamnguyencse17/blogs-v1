@@ -66,9 +66,14 @@ export const getCreatorByIdForAuthenticated = async (id: number) => {
       email: true,
       createdAt: false,
       updatedAt: false,
+      profile: true,
     },
   })
 }
+
+export type SingleFetchedCreatorForAuthenticated = Awaited<
+  Prisma.PromiseReturnType<typeof getCreatorByIdForAuthenticated>
+>
 
 export const getUserContext = async (id: number) => {
   return prisma.users.findUnique({
