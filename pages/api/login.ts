@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import jwt from 'jsonwebtoken'
 import * as jose from 'jose'
 import { IS_PRODUCTION, JWT_SECRET } from '../../libs/configs'
 import { HiddenUserData, hideUserData, loginSchema } from '../../libs/auth'
