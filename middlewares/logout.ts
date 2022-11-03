@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { JWT_SECRET } from '../libs/configs'
-import jwt from '@tsndr/cloudflare-worker-jwt'
+import { verifyToken } from '../libs/auth'
 
 export default async function logoutMiddleware(request: NextRequest) {
   const token = request.cookies.get('Authorization')
   if (!token || !JWT_SECRET) {
     return NextResponse.redirect(new URL('/', request.url))
   }
-  const isValid = await jwt.verify(token, JWT_SECRET)
+  const isValid = await verifyToken(token)
   if (isValid) {
     const response = NextResponse.next()
     response.cookies.set('Authorization', '', {
